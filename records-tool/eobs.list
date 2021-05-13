@@ -16,4 +16,6 @@ s_nd = '7'   # for run/timsel[stat] ; 7 - week ; 30 - mon
 yr_split = 'true'
 yr_trimm = 'true' # always false with monmax/sum
 yr_stats = 'true' # always false with day
-
+yr_recor = 'true'
+yr_tmsum = 'true'
+yr_norma = 'true'

@@ -5,10 +5,9 @@ set -eo pipefail
 
 nlist=$1
 statsa="day mon run-7 run-30 timsel"
-statsa=timsel
 statsm="max sum"
 
-#./main/year-split.sh $nlist
+./main/year-split.sh $nlist
 for sa in $statsa; do
   if [ $sa != day ]; then
     tdir=.tempscripts
@@ -28,6 +27,7 @@ for sa in $statsa; do
       sed -i $newscr -e "s/stat = .*$/stat = '"${sam}"'/"
       sed -i $newscr -e "s/s_nd = .*$/s_nd = '"${nd}"'/"
       ./main/stats.sh $newscr
+      ./main/records.sh $newscr
     done
   fi
 done
