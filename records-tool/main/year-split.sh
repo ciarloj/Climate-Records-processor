@@ -39,12 +39,16 @@ if [ $y_tr = 'true' ]; then
   echo "## Running Trimming."
   for y in $( seq $y1 $y2 ); do
     echo "checking on $y.."
-    d=$( ncdump -h $ydir/../${y}.nc | grep time | head -1 | cut -d'(' -f2 | cut -d' ' -f1 )
+    set +e
+    d=$( ncdump -h $ydir/../${y}.nc | grep -i time | head -1 | cut -d'(' -f2 | cut -d' ' -f1 )
+    set -e
     if [ $d -ne 365 ]; then
       echo "trimming $y.."
       cdo -O -L -f nc4 -z zip delete,day=29,month=2 $ydir/../${y}.nc $ydir/${y}.nc
     else
-      ln -s $ydir/../${y}.nc $ydir/${y}.nc
+      if [ ! -f $ydir/${y}.nc ]; then
+        ln -s $ydir/../${y}.nc $ydir/${y}.nc
+      fi
     fi
   done
   echo "## Trimming done."

@@ -1,0 +1,22 @@
+# input paths and choices
+# main job control
+wrk_dir = '/home/netapp-clima-scratch/jciarlo'
+job_mst = 'records'
+# data input  
+d_nam = 'GRIPHO'
+d_dir = '/home/clima-archive4-b/fdi_sant/GRIPHO/data/masked_3km_AQcleaning_missfix_LAEA/hourly/'
+d_fnm = 'gripho-v1_1h_TSmin30pct_2001-2016_cut.nc'
+# analysis details
+var = 'pr'
+fyr = '2001'
+lyr = '2016'
+stat = 'day' # options: day | monmax/sum | runmax/sum | timselmax/sum
+s_nd = '7'   # for run/timsel[stat] ; 7 - week ; 30 - mon
+# running switches
+yr_split = 'true'
+yr_trimm = 'true' # always false with monmax/sum
+yr_stats = 'true' # always false with day
+yr_recor = 'true'
+yr_tmsum = 'true'
+yr_merge = 'true'
+yr_norma = 'true'

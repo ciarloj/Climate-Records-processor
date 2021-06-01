@@ -16,16 +16,11 @@ y_tr=$( cat $nlist | grep 'yr_trimm =' | cut -d"'" -f2 )
 y_st=$( cat $nlist | grep 'yr_stats =' | cut -d"'" -f2 )
 y_rc=$( cat $nlist | grep 'yr_recor =' | cut -d"'" -f2 )
 y_ts=$( cat $nlist | grep 'yr_tmsum =' | cut -d"'" -f2 )
+y_mg=$( cat $nlist | grep 'yr_merge =' | cut -d"'" -f2 )
 y_nm=$( cat $nlist | grep 'yr_norma =' | cut -d"'" -f2 )
 [[ $st = day ]] && y_st='false'
 [[ $st = monmax ]] && y_tr='false'
 [[ $st = monsum ]] && y_tr='false'
-
-if [ $y_rc = true -o $y_ts = true -o $y_nm = true ]; then
-  y_rc='true'
-  y_ts='true'
-  y_nm='true'
-fi
 
 v=$vv
 hdir=$wkd/$jm/$dn
@@ -39,23 +34,26 @@ if [ $st != day ]; then
   [[ $st = monsum ]] && sdir=$st
   ydir=$ydir/$sdir
 fi
+rdir=$ydir/records
+rfb=$rdir/records_base.nc
+cf=$rdir/count.nc
+cfs=$rdir/count_sum.nc
+rf=$rdir/records.nc
 if [ $y_rc = true ]; then
   echo "## Preparing base records."
-  rdir=$ydir/records
   mkdir -p $rdir
-  rfb=$rdir/records_base.nc
   cp $ydir/${y1}.nc $rfb
-  ncap2 -O -s "max=$v-$v" $rfb $rfb
-  ncks -O -v max $rfb $rfb
+  cp $rfb ${rf}_2.nc
+  cdo -O -L -f nc4 -z zip sub $rfb ${rf}_2.nc ${rf}_0.nc
+  rm ${rf}_2.nc
+  mv ${rf}_0.nc $rfb
+  ncrename -O -v $v,max $rfb
 
   echo "## Counting points."
-  cf=$rdir/count.nc
-  ncap2 -O -s "np=max+1" $rfb $cf
-  cfs=$rdir/count_sum.nc
+  cdo -O -L -f nc4 -z zip expr,'np=max+1' $rfb $cf
   cdo -O -L -f nc4 -z zip timsum -fldsum $cf $cfs
 
   echo "## Running records."
-  rf=$rdir/records.nc
   cp $rfb $rf
   for y in $( seq $y1 $y2 ); do
     echo "Assessing $y .."
@@ -63,7 +61,9 @@ if [ $y_rc = true ]; then
     ouf=$rdir/${y}.nc
     cp $inf $ouf
     ncks -A -v max $rf $ouf
-    ncap2 -O -s "n=$v-$v; where($v > max) n=1; where(n==1) max=$v" $ouf $ouf
+    cdo -O -L -f nc4 -z zip aexpr,"n=($v > max)?1:0 ; max=(n==1)?$v:max" $ouf ${ouf}_t.nc
+    mv ${ouf}_t.nc $ouf 
+    #ncap2 -O -s "n=$v-$v; where($v > max) n=1; where(n==1) max=$v" $ouf $ouf
     cdo -O -L -f nc4 -z zip selvar,max $ouf $rf
     ncks -A -v time $inf $ouf
   done
@@ -71,9 +71,10 @@ if [ $y_rc = true ]; then
   echo ""
 fi
 
+tdir=$rdir/sum
+ff=$tdir/index.nc
 if [ $y_ts = true ]; then 
   echo "## Summing Records."
-  tdir=$rdir/sum
   mkdir -p $tdir
   for y in $( seq $y1 $y2 ); do
     echo "Summing $y .."
@@ -82,18 +83,19 @@ if [ $y_ts = true ]; then
     cdo -O -L -f nc4 -z zip timsum -selvar,n $inf $ouf
     ncatted -O -a units,n,m,c,"#" $ouf
   done
+fi 
+if [ $y_mg = true ]; then
   echo "## Merging sums."
-  ff=$tdir/index.nc
-  cdo -O -L -f nc4 -z zip mergetime $tdir/{${y1}..${y2}}.nc $ff
+  eval cdo -O -L -f nc4 -z zip mergetime $tdir/{${y1}..${y2}}.nc $ff
   echo "Sum complete."
   echo ""
 fi
 
+fff=$tdir/index_fld.nc
+ffn=$tdir/index_fld_norm.nc
 if [ $y_nm = true ]; then
   echo "## Normalising Records."
   np=$( ncdump -v np $cfs | tail -2 | head -1 | cut -d' ' -f3 )
-  fff=$tdir/index_fld.nc
-  ffn=$tdir/index_fld_norm.nc
   cdo -O -L -f nc4 -z zip fldsum $ff $fff
   cdo -O -L -f nc4 -z zip divc,$np $fff $ffn
   echo "Normalising complete."

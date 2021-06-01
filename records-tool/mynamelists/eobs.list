@@ -1,0 +1,22 @@
+# input paths and choices
+# main job control
+wrk_dir = '/home/netapp-clima-scratch/jciarlo'
+job_mst = 'records'
+# data input  
+d_nam = 'E_OBS'
+d_dir = '/home/esp-shared-a/Observations/E_OBS/v20e/025'
+d_fnm = 'rr_ens_mean_0.25deg_reg_v20.0e.nc'
+# analysis details
+var = 'pr'
+fyr = '1950'
+lyr = '2018'
+stat = 'day' # options: day | monmax/sum | runmax/sum | timselmax/sum
+s_nd = '7'   # for run/timsel[stat] ; 7 - week ; 30 - mon
+# running switches
+yr_split = 'true'
+yr_trimm = 'true' # always false with monmax/sum
+yr_stats = 'true' # always false with day
+yr_recor = 'true'
+yr_tmsum = 'true'
+yr_merge = 'true'
+yr_norma = 'true'
