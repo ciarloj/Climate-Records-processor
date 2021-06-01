@@ -28,6 +28,12 @@ begin
   if ( stat .eq. "runsum-7" ) then
     snam = "weekly running total pr (mm/week)"
   end if
+  if ( stat .eq. "runmax-30" ) then
+    snam = "monthly running max of daily pr (mm/day)"
+  end if
+  if ( stat .eq. "runsum-30" ) then
+    snam = "monthly running total pr (mm/mon)"
+  end if
   if ( stat .eq. "timselmax-7" ) then
     snam = "weekly max of daily pr (mm/day)"
   end if
@@ -78,7 +84,7 @@ begin
 
   res@tiYAxisString          = "frequency (#)"
   res@tiMainString           = "[Act./Est.] ann. freq. of records based on:"
-  res@gsnCenterString        = snam
+  res@gsnCenterString        = dn+" "+snam
 
   res@trYMaxF    = 2. 
   res@trYMinF    = 0. ;1e-10
