@@ -5,11 +5,10 @@ set -eo pipefail
 
 nlist=$1
 statsa="day mon run-7 run-30 timsel"
-statsa="day run-7 run-30"
 statsm="max sum"
 
-#jid=$( bash sub_one.sh main/year-split.sh $nlist | cut -d' ' -f4 )
-#dep1="-d afterok:$jid"
+jid=$( bash sub_one.sh main/year-split.sh $nlist | cut -d' ' -f4 )
+dep1="-d afterok:$jid"
 for sa in $statsa; do
   if [ $sa != day ]; then
     tdir=.tempscripts
@@ -28,8 +27,8 @@ for sa in $statsa; do
       cp $nlist $newscr
       sed -i $newscr -e "s/stat = .*$/stat = '"${sam}"'/"
       sed -i $newscr -e "s/s_nd = .*$/s_nd = '"${nd}"'/"
-      #jid2=$( bash sub_one.sh main/stats.sh $newscr "$dep1" | cut -d' ' -f4 )
-      #dep2="-d afterok:$jid2"
+      jid2=$( bash sub_one.sh main/stats.sh $newscr "$dep1" | cut -d' ' -f4 )
+      dep2="-d afterok:$jid2"
       bash sub_one.sh main/records.sh $newscr "$dep2"
     done
   else

@@ -1,0 +1,27 @@
+# input paths and choices
+# main job control
+wrk_dir = '/path/to/master/output/directory'
+job_mst = 'project-name'   # name of project and master directory
+# data input  
+d_nam = 'data-set-name'    # name of data-set and output directory
+d_dir = '/path/to/input/file'
+d_fnm = 'input_file.nc'    # input file name (single file)
+# analysis details
+var = 'pr'                 # analysis variable
+fyr = '1931'               # first analysis year
+myr = '1972'               # year to continue yr_tmsum - delete line if not needed
+lyr = '2014'               # last analysis year
+stat = 'day'               # analysis statistic
+                           # options: day | monmax/sum | runmax/sum | timselmax/sum
+s_nd = '7'                 # timesteps needed for analysis
+                           # for run/timsel[stat] ; 7 - week ; 30 - mon
+# running switches
+yr_split = 'true'          # true = activate yeat-split 
+yr_trimm = 'true'          # true = activate leap year trim       
+                           #        always false with monmax/sum
+yr_stats = 'true'          # true = activate statistics processing 
+                           #        always false with day
+yr_recor = 'true'          # true = activate records calculation
+yr_tmsum = 'true'          # true = activate timsum in records processing
+yr_merge = 'true'          # true = activate merge of processed files
+yr_norma = 'true'          # true = activate normalization process

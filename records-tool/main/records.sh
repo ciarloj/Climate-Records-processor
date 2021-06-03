@@ -8,6 +8,7 @@ jm=$( cat $nlist | grep 'job_mst =' | cut -d"'" -f2 )
 dn=$( cat $nlist | grep 'd_nam =' | cut -d"'" -f2 )
 vv=$( cat $nlist | grep 'var =' | cut -d"'" -f2 )
 y1=$( cat $nlist | grep 'fyr =' | cut -d"'" -f2 )
+ym=$( cat $nlist | grep 'myr =' | cut -d"'" -f2 )
 y2=$( cat $nlist | grep 'lyr =' | cut -d"'" -f2 )
 st=$( cat $nlist | grep 'stat =' | cut -d"'" -f2 )
 nd=$( cat $nlist | grep 's_nd =' | cut -d"'" -f2 )
@@ -21,6 +22,12 @@ y_nm=$( cat $nlist | grep 'yr_norma =' | cut -d"'" -f2 )
 [[ $st = day ]] && y_st='false'
 [[ $st = monmax ]] && y_tr='false'
 [[ $st = monsum ]] && y_tr='false'
+
+if [ -z $ym ]; then
+  y_mid='false'
+else
+  y_mid='true'
+fi
 
 v=$vv
 hdir=$wkd/$jm/$dn
@@ -76,7 +83,8 @@ ff=$tdir/index.nc
 if [ $y_ts = true ]; then 
   echo "## Summing Records."
   mkdir -p $tdir
-  for y in $( seq $y1 $y2 ); do
+  [[ $y_mid = 'true' ]] && y0=$ym || y0=$y1
+  for y in $( seq $y0 $y2 ); do
     echo "Summing $y .."
     inf=$rdir/${y}.nc
     ouf=$tdir/${y}.nc
