@@ -18,6 +18,7 @@ begin
   outim = idir+"/ratios_"+dn+"_"+stat
   formo = "png"
   wks  = gsn_open_wks ("png",outim)             ; send graphics to PNG file
+  nry = 10 ; number of years of running mean
 
   if ( stat .eq. "day" ) then
     snam = "daily pr (mm/day)"
@@ -53,7 +54,10 @@ begin
   pdim = dimsizes(v)
   nbins = pdim(0)
   y1 = stringtointeger(yr1)
+  y2 = stringtointeger(yr2)
   bins := ispan(y1,y1-1+nbins,1)
+  y1f = floattointeger(floor(int2flt(y1)/10)*10)
+  y2c = floattointeger(ceil(int2flt(y2)/10)*10)
 ;------------------------------------------------
 ; Plot each PDF
 ;------------------------------------------------
@@ -65,7 +69,7 @@ begin
   end do
  
   rat = recs(1,:)/recs(0,:)
-  run = runave_n(rat,5,0,0)
+  run = runave_n(rat,nry,0,0)
   recs(0,:) = (/rat(:)/)
   recs(1,:) = (/run(:)/)
  
@@ -76,8 +80,8 @@ begin
   res@gsnDraw                = False
   res@xyMarkLineModes        = (/"Markers","Lines"/) 
   res@xyMarkers              = 16 
-  res@xyLineColors           = "blue" 
-  res@xyLineThicknesses      = (/3,4/)
+  res@xyLineColors           = (/"black","black"/) 
+  res@xyLineThicknesses      = (/3,3/)
   res@xyDashPatterns         = (/0,0/)
   res@xyMarkerColors         = (/"blue","blue"/) 
   res@xyMarkerSizeF          = 0.005
@@ -88,6 +92,8 @@ begin
 
   res@trYMaxF    = 2. 
   res@trYMinF    = 0. ;1e-10
+  res@trXMinF    = y1f
+  res@trXMaxF    = y2c
   res@tmYLMode = "Manual"
   res@tmYLTickStartF = 0.
   res@tmYLTickEndF = 2.
@@ -110,24 +116,27 @@ begin
   res_mark@gsMarkerColor     = "black"
   res_mark@gsMarkerSizeF     = 0.020
 
-  y2 = stringtointeger(yr2)
-  dy = (y2-y1)*5/7
+  dy = (y2-y1)*6/7
   xm = y1+dy
   ym = 1.9
-  dum1 = gsn_add_polyline(wks,plot,(/xm-1,xm+1/),(/ym,ym/),res_line)
+  res_line@gsLineDashPattern = 2
+  dum1 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum2 = gsn_add_text(wks,plot,"Estimate",xm+2,ym,res_text)  ; add text
 
   ym = 1.85
-  res_mark@gsMarkerColor     = "blue"      
-  dum3 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
-  dum4 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text
+  res_line@gsLineColor       = "black"
+  res_line@gsLineDashPattern = 0
+  dum3 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
+  dum4 = gsn_add_text(wks,plot,nry+"y Run. Avg.",xm+2,ym,res_text)  ; add text
 
-  res_line                   = True
-  res_line@xyMarkLineMode    = "Lines" 
-  res_line@xyLineColors      = "Black"
-  res_line@xyLineThicknesses = 3
-  res_line@xyDashPatterns    = 1
-  dum5 = gsn_add_polyline(wks,plot,(/y1,y2/),(/1.0,1.0/),res_line)
+  ym = 1.8
+  res_mark@gsMarkerColor     = "blue"      
+  dum5 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
+  dum6 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text
+
+  res_line@gsLineThicknessF  = 3
+  res_line@gsLineDashPattern = 2
+  dum7 = gsn_add_polyline(wks,plot,(/y1f,y2c/),(/1.0,1.0/),res_line)
 
 ;*****************************************************
 ; save output image

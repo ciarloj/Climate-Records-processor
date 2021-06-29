@@ -55,7 +55,10 @@ begin
   pdim = dimsizes(v)
   nbins = pdim(0)
   y1 = stringtointeger(yr1)
+  y2 = stringtointeger(yr2)
   bins := ispan(y1,y1-1+nbins,1)
+  y1f = floattointeger(floor(int2flt(y1)/10)*10)
+  y2c = floattointeger(ceil(int2flt(y2)/10)*10)
 ;------------------------------------------------
 ; Plot each PDF
 ;------------------------------------------------
@@ -86,6 +89,8 @@ begin
   res@trYLog = True
   res@trYMaxF    = 1. 
   res@trYMinF    = 1e-2 ;1e-10 
+  res@trXMinF    = y1f
+  res@trXMaxF    = y2c
   plot = gsn_csm_xy (wks, bins, recs, res)        ; create plot
 
 ;*****************************************************

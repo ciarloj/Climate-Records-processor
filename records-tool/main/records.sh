@@ -8,7 +8,9 @@ jm=$( cat $nlist | grep 'job_mst =' | cut -d"'" -f2 )
 dn=$( cat $nlist | grep 'd_nam =' | cut -d"'" -f2 )
 vv=$( cat $nlist | grep 'var =' | cut -d"'" -f2 )
 y1=$( cat $nlist | grep 'fyr =' | cut -d"'" -f2 )
+set +e
 ym=$( cat $nlist | grep 'myr =' | cut -d"'" -f2 )
+set -e
 y2=$( cat $nlist | grep 'lyr =' | cut -d"'" -f2 )
 st=$( cat $nlist | grep 'stat =' | cut -d"'" -f2 )
 nd=$( cat $nlist | grep 's_nd =' | cut -d"'" -f2 )
@@ -43,8 +45,8 @@ if [ $st != day ]; then
 fi
 rdir=$ydir/records
 rfb=$rdir/records_base.nc
-cf=$rdir/count.nc
-cfs=$rdir/count_sum.nc
+#cf=$rdir/count.nc
+#cfs=$rdir/count_sum.nc
 rf=$rdir/records.nc
 if [ $y_rc = true ]; then
   echo "## Preparing base records."
@@ -56,9 +58,9 @@ if [ $y_rc = true ]; then
   mv ${rf}_0.nc $rfb
   ncrename -O -v $v,max $rfb
 
-  echo "## Counting points."
-  cdo -O -L -f nc4 -z zip expr,'np=max+1' $rfb $cf
-  cdo -O -L -f nc4 -z zip timsum -fldsum $cf $cfs
+ #echo "## Counting points."
+ #cdo -O -L -f nc4 -z zip expr,'np=max+1' $rfb $cf
+ #cdo -O -L -f nc4 -z zip timsum -fldsum $cf $cfs
 
   echo "## Running records."
   cp $rfb $rf
@@ -68,7 +70,11 @@ if [ $y_rc = true ]; then
     ouf=$rdir/${y}.nc
     cp $inf $ouf
     ncks -A -v max $rf $ouf
-    cdo -O -L -f nc4 -z zip aexpr,"n=($v > max)?1:0 ; max=(n==1)?$v:max" $ouf ${ouf}_t.nc
+    if [ $y = $y1 ]; then
+      cdo -O -L -f nc4 -z zip aexpr,"n=($v >= max)?1:0 ; max=(n==1)?$v:max ; p=$v-$v+1" $ouf ${ouf}_t.nc
+    else
+      cdo -O -L -f nc4 -z zip aexpr,"n=($v > max)?1:0 ; max=(n==1)?$v:max ; p=$v-$v+1" $ouf ${ouf}_t.nc
+    fi
     mv ${ouf}_t.nc $ouf 
     #ncap2 -O -s "n=$v-$v; where($v > max) n=1; where(n==1) max=$v" $ouf $ouf
     cdo -O -L -f nc4 -z zip selvar,max $ouf $rf
@@ -88,7 +94,7 @@ if [ $y_ts = true ]; then
     echo "Summing $y .."
     inf=$rdir/${y}.nc
     ouf=$tdir/${y}.nc
-    cdo -O -L -f nc4 -z zip timsum -selvar,n $inf $ouf
+    cdo -O -L -f nc4 -z zip timsum -selvar,n,p $inf $ouf
     ncatted -O -a units,n,m,c,"#" $ouf
   done
 fi 
@@ -103,9 +109,10 @@ fff=$tdir/index_fld.nc
 ffn=$tdir/index_fld_norm.nc
 if [ $y_nm = true ]; then
   echo "## Normalising Records."
-  np=$( ncdump -v np $cfs | tail -2 | head -1 | cut -d' ' -f3 )
+ #np=$( ncdump -v np $cfs | tail -2 | head -1 | cut -d' ' -f3 )
   cdo -O -L -f nc4 -z zip fldsum $ff $fff
-  cdo -O -L -f nc4 -z zip divc,$np $fff $ffn
+  cdo -O -L -f nc4 -z zip chname,nn,n -selvar,nn -aexpr,"nn=n/p" $fff $ffn
+ #cdo -O -L -f nc4 -z zip divc,$np $fff $ffn
   echo "Normalising complete."
   echo ""
 fi
