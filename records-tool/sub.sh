@@ -6,7 +6,7 @@ set -eo pipefail
 nlist=$1
 statsa="day mon run-7 run-30 timsel"
 statsm="max sum"
-statsa="day run-7 run-30"
+statsa="run-30"
 statsm="max"
 
 jid=$( bash sub_one.sh main/year-split.sh $nlist | cut -d' ' -f4 )
