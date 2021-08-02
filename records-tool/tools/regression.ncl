@@ -13,14 +13,13 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"   
 
 begin
-  var = "n"
- idir = ""  ;idir = "images"
- stat = "runmax-30" ;stat = "day"
- fnam = "/home/netapp-clima-scratch/jciarlo/records/REMO-MPI3/trim/runmax-30/records/sum/index_fld_norm.nc" ;fnam = "dir/index_fld_norm.nc"
- yr1 = "1950"
- yr2 = "2100"
- dn = "t"
- outim = "t" ; outim = idir+"/frq_"+dn+"_"+stat
+;idir = "images"
+;stat = "day"
+;fnam = "dir/index_fld_norm.nc"
+; yr1 = "1950"
+; yr2 = "2100"
+; dn = "t"
+  outim = idir+"/regr_"+dn+"_"+stat
   formo = "png"
   wks  = gsn_open_wks ("png",outim)             ; send graphics to PNG file
 
@@ -53,96 +52,108 @@ begin
   end if
  
   f = addfile(fnam, "r")
-  v = f->n(:,0,0)
+  n = f->n(:,:,:)
+  p = f->p(:,:,:)
+  rg = f->n(0,:,:)
+  rg = rg-rg
 
-  pdim = dimsizes(v)
+  xlat = f->lat
+  xlon = f->lon
+  dims = dimsizes(xlat)
+  nlat = dims(1)
+  nlon = dims(0)
+
+  pdim = dimsizes(n)
   nbins = pdim(0)
   y1 = stringtointeger(yr1)
   y2 = stringtointeger(yr2)
   bins := tofloat(ispan(y1,y1-1+nbins,1))
 
-;  y1f = floattointeger(floor(int2flt(y1)/10)*10)
-;  y2c = floattointeger(ceil(int2flt(y2)/10)*10)
-;------------------------------------------------
-; Plot each PDF
-;------------------------------------------------
-  recs := new ((/2,nbins/), "float")
-  recs(1,:) = v(:)
+  ny = pdim(1)
+  nx = pdim(2)
+
+  est = new ((/nbins/), "float")
   do k =1, nbins
-    recs(0,k-1) = 1.0/k
-   ;print("k="+k+" recs="+recs(0,k-1))
+    est(k-1) = 1.0/k
   end do
 
-  rat = recs(1,:)/recs(0,:)
-;  run = runave_n(rat,nry,0,0)
-;  recs(0,:) = (/rat(:)/)
-;  recs(1,:) = (/run(:)/)
+  do iy=0, ny-1
+    do jx=0, nx-1
+      i_n = n(:,iy,jx)
+      if ( ismissing(i_n(0)) ) then
+        continue
+      end if
+      i_p = p(:,iy,jx)
+      fq = i_n/i_p
+      rt = fq/est
 
-  rcl = regline(bins,rat)
-  delete_VarAtts(rcl,(/"yintercept","yave","xave","nptxy","rstd","tval"/))
-  print (rcl)
+      rcl = regline(bins,rt)
+      delete_VarAtts(rcl,(/"yintercept","yave","xave","nptxy","rstd","tval"/))
+     ;print (rcl)
 
-end
+      rg(iy,jx) = rcl
+    end do
+  end do
+
+ ;***********************
+ ; plot
+ ;***********************
+
+  res  = True
+  res@gsnDraw             = True              ; don't draw yet
+  res@gsnFrame            = True              ; don't advance frame yet
+
+  res@mpLimitMode       = "Corners"            ; choose range of map
+  res@mpLeftCornerLatF  = xlat(0,0)
+  res@mpLeftCornerLonF  = xlon(0,0)
+  res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+  res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+
+  prj = "LAMCON" ; f@projection
+  clon = 9.75 ; f@longitude_of_projection_origin
+  if (prj .eq. "LAMCON") then
+   ;trlats = f@standard_parallel
+    res@mpProjection        = "LambertConformal"
+    res@mpLambertParallel1F = 30. ;trlats(0)
+    res@mpLambertParallel2F = 65. ;trlats(1)
+    res@mpLambertMeridianF  = clon
+  end if
+
+  ; usually, when data is placed onto a map, it is TRANSFORMED to the specified
+  ; projection. Since this model is already on a native lambert conformal grid,
+  ; we want to turn OFF the tranformation.
+
+  res@tfDoNDCOverlay         = True      ; do not transform
+  res@cnFillOn               = True      ; color plot desired
+  res@cnLinesOn              = False       ; no contour lines
+  res@mpFillOn               = False
+
+  res@mpGeophysicalLineColor = "black"     ; color of continental outlines
+  res@mpPerimOn              = True      ; draw box around map
+  res@mpGridLineDashPattern  = 5         ; lat/lon lines as dashed
+
+  res@gsnAddCyclic           = False     ; regional data don't add
+  res@pmTickMarkDisplayMode  = "Always"  ;
+  res@mpGridAndLimbOn        = False               ; turn on grid lines
+  res@lbLabelBarOn           = True 
+  res@lbOrientation          =   "vertical"
+ ;res@lbLabelFontHeightF   = 0.02
+ ;res@lbTitleFontHeightF   = 0.02                 ; make title smaller
+ ;res@lbTitleString    = unit
+ ;res@lbTitlePosition      = "Top"
+  res@tmYROn = False            ; Turn off right tickmarks.
+  res@tmXTOn = False            ; Turn off top tickmarks.
+  res@tmYLOn = False
+  res@tmXBOn = False
+  res@gsnCenterString        = dn+"("+yr1+"-"+yr2+")"  ;+" "+snam
+
+  res@cnLevelSelectionMode   = "ExplicitLevels"
+  res@cnLevels = (/-.035,-.03,-.025,-.02,-.015,-.01,-.005,.005,.01,.015,.02,.025,.03,.035/) ; "mm/day"
+  cmap = read_colormap_file("hotcold_18lev")
+  res@cnFillPalette = cmap
 
 
-
-;  recs := new ((/2,nbins/), "float")
-;  recs(1,:) = v(:)
-;  do k =1, nbins
-;    recs(0,k-1) = 1.0/k
-;   ;print("k="+k+" recs="+recs(0,k-1))
-;  end do
-;
-;  res  = True
-;  res@tmXTOn = False
-;  res@tmYROn = False
-;  res@gsnFrame               = False
-;  res@gsnDraw                = False
-;  res@xyMarkLineModes        = (/"Lines","Markers"/)
-;  res@xyMarkers              = (/16,16/)
-;  res@xyMarkerColors         = (/"Black","Blue"/)
-;  res@xyMarkerSizeF          = 0.005
-;  res@xyLineColors           = (/"Black", "Blue"/)
-;  res@xyLineThicknesses      = (/3,3/)
-;  res@xyDashPatterns         = (/0,0/)
-;
-;  res@tiYAxisString          = "frequency (#)"
-;  res@tiMainString           = "Annual frequency of records based on:"
-;  res@gsnCenterString        = dn+" "+snam
-;
- ; res@trYLog = True
-;  res@trYMaxF    = 1. 
-;  res@trYMinF    = 1e-2 ;1e-10 
-;  res@trXMinF    = y1f
-;  res@trXMaxF    = y2c
-;  plot = gsn_csm_xy (wks, bins, recs, res)        ; create plot
-;
-;*****************************************************
-; Manually create and attach legend
-;*****************************************************
-;  res_text                   = True              ; text mods desired
-;  res_text@txFontHeightF     = 0.010             ; change text size
-;  res_text@txJust            = "CenterLeft"      ; text justification
-;
-;  res_line                   = True
-;  res_line@gsLineColor       = "Black"
-;  res_line@gsLineThicknessF  = 3
-;
-;  res_mark   = True
-;  res_mark@gsMarkerIndex     = "dot"
-;  res_mark@gsMarkerColor     = "black"
-;  res_mark@gsMarkerSizeF     = 0.020
-;
-;  dy = (stringtointeger(yr2)-y1)*5/7
-;  xm = y1+dy
-;  ym = 0.8
-;  dum1 = gsn_add_polyline(wks,plot,(/xm-1,xm+1/),(/ym,ym/),res_line)
-;  dum2 = gsn_add_text(wks,plot,"Estimate",xm+2,ym,res_text)  ; add text
-;
-;  ym = 0.7
-;  res_mark@gsMarkerColor     = "blue"      
-;  dum3 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
-;  dum4 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text
+  plot = gsn_csm_contour_map(wks,rg,res)
 
 ;*****************************************************
 ; save output image
@@ -152,7 +163,7 @@ end
 ;
 ;  maximize_output(wks,resP)
 ;
-;  print("saved "+outim+"."+formo)
+   print("saved "+outim+"."+formo)
 
 
-;end
+end
