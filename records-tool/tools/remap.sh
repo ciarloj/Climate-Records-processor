@@ -11,7 +11,14 @@ y2=$( cat $nlist | grep 'lyr =' | cut -d"'" -f2 )
 st=$( cat $nlist | grep 'stat =' | cut -d"'" -f2 )
 nd=$( cat $nlist | grep 's_nd =' | cut -d"'" -f2 )
 rel=$( cat $nlist | grep 'remaplog =' | cut -d"'" -f2 )
-msl=$( cat $nlist | grep 'masklog =' | cut -d"'" -f2 )
+ret=$( cat $nlist | grep 'remaptyp =' | cut -d"'" -f2 )
+gf=$( cat $nlist | grep 'gridfile =' | cut -d"'" -f2 )
+
+if [ $rel != 'true' ]; then
+  echo "NOTE: remap logic set to 'false'"
+  echo "no remap required"
+  exit 0
+fi
 
 hdir=$wkd/$jm/$dn
 ydir=$hdir
@@ -27,23 +34,11 @@ else
   sdir=day
 fi
 ddir=$ydir/records/sum
-if [ $rel = 'true' -a $msl = 'true' ]; then
-  dnam=index_remap_mask.nc
-elif [ $rel = 'true' -a $msl = 'false' ]; then
-  dnam=index_remap.nc
-elif [ $rel = 'false' -a $msl = 'true' ]; then
-  echo "ERROR! remap = false + mask = true"
-  exit 1
-else
-  dnam=index.nc
-fi
-din=$ddir/$dnam
-dfil=$din
+din=$ddir/index.nc
 
-idir=$wkd/$jm/images
-mkdir -p $idir
+dremp=$ddir/index_remap.nc
+cdo -O -L -f nc4 -z zip remap$ret,$gf $din $dremp
 
-args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" yr1="'$y1'" yr2="'$y2'" dn="'$dn'"'
-ncl -Q $args tools/regression.ncl
+echo "Complete."
 
 }

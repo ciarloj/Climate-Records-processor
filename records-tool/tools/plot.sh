@@ -10,6 +10,8 @@ y1=$( cat $nlist | grep 'fyr =' | cut -d"'" -f2 )
 y2=$( cat $nlist | grep 'lyr =' | cut -d"'" -f2 )
 st=$( cat $nlist | grep 'stat =' | cut -d"'" -f2 )
 nd=$( cat $nlist | grep 's_nd =' | cut -d"'" -f2 )
+rel=$( cat $nlist | grep 'remaplog =' | cut -d"'" -f2 )
+msl=$( cat $nlist | grep 'masklog =' | cut -d"'" -f2 )
 
 hdir=$wkd/$jm/$dn
 ydir=$hdir
@@ -25,7 +27,17 @@ else
   sdir=day
 fi
 ddir=$ydir/records/sum
-din=$ddir/index_fld_norm.nc
+if [ $rel = 'true' -a $msl = 'true' ]; then
+  dnam=index_remap_mask
+elif [ $rel = 'true' -a $msl = 'false' ]; then
+  dnam=index_remap
+elif [ $rel = 'false' -a $msl = 'true' ]; then
+  echo "ERROR! remap = false + mask = true"
+  exit 1
+else
+  dnam=index
+fi
+din=$ddir/${dnam}_fld_norm.nc
 
 idir=$wkd/$jm/images
 mkdir -p $idir

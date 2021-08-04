@@ -20,3 +20,10 @@ yr_recor = 'true'
 yr_tmsum = 'true'
 yr_merge = 'true'
 yr_norma = 'true'
+# grid information
+remaplog = 'true'          # true = final plot requires remap
+remaptyp = 'dis'           # cdo remap options: dis, bil, bic, nn (only)
+gridfile = '/home/netapp-clima-scratch/jciarlo/records/REGCM-ERAIN/1980.nc'
+# # # # mask information
+masklog = 'false'          # true = final plot requires masking (after remap)
+maskfil = '/home/netapp-clima-scratch/jciarlo/temp/sftlf_EUR-11_ECMWF-ERAINT_evaluation_r1i1p1_ICTP-RegCM4-6_v1_fx.nc'

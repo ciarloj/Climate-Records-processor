@@ -25,3 +25,10 @@ yr_recor = 'true'          # true = activate records calculation
 yr_tmsum = 'true'          # true = activate timsum in records processing
 yr_merge = 'true'          # true = activate merge of processed files
 yr_norma = 'true'          # true = activate normalization process
+# grid information
+remaplog = 'true'          # true = final plot requires remap
+remaptyp = 'dis'           # cdo remap options: dis, bil, bic, nn (only)
+gridfile = '/path/to/grid/file.nc'
+# mask information
+masklog = 'true'           # true = final plot requires masking (after remap)
+maskfil = '/path/to/mask/file.nc'

@@ -12,6 +12,7 @@ st=$( cat $nlist | grep 'stat =' | cut -d"'" -f2 )
 nd=$( cat $nlist | grep 's_nd =' | cut -d"'" -f2 )
 rel=$( cat $nlist | grep 'remaplog =' | cut -d"'" -f2 )
 msl=$( cat $nlist | grep 'masklog =' | cut -d"'" -f2 )
+mf=$( cat $nlist | grep 'maskfil =' | cut -d"'" -f2 )
 
 hdir=$wkd/$jm/$dn
 ydir=$hdir
@@ -38,12 +39,11 @@ else
   dnam=index.nc
 fi
 din=$ddir/$dnam
-dfil=$din
 
-idir=$wkd/$jm/images
-mkdir -p $idir
+dout=$ddir/$( basename $din | cut -d'.' -f1 )_fld_norm.nc
 
-args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" yr1="'$y1'" yr2="'$y2'" dn="'$dn'"'
-ncl -Q $args tools/regression.ncl
+cdo -O -L -f nc4 -z zip chname,nn,n -selvar,nn -aexpr,"nn=n/p" -fldsum $din $dout
+
+echo "Complete."
 
 }

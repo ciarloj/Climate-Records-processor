@@ -77,8 +77,14 @@ begin
     est(k-1) = 1.0/k
   end do
 
+  np = ny*nx
+  print("ny x nx = "+ny+" x "+nx+" = "+np)
+  print("dt = "+nbins)
+  c = 0
   do iy=0, ny-1
     do jx=0, nx-1
+      c = c + 1
+      ;print("i = "+c+"/"+np)
       i_n = n(:,iy,jx)
       if ( ismissing(i_n(0)) ) then
         continue
@@ -94,6 +100,16 @@ begin
       rg(iy,jx) = rcl
     end do
   end do
+
+  delete(n)
+  delete(p)
+  delete(c)
+  delete(i_n)
+  delete(i_p)
+  delete(fq)
+  delete(rt)
+  delete(rcl)
+  delete(est)
 
  ;***********************
  ; plot
@@ -125,6 +141,7 @@ begin
 
   res@tfDoNDCOverlay         = True      ; do not transform
   res@cnFillOn               = True      ; color plot desired
+  res@cnFillMode             = "RasterFill"
   res@cnLinesOn              = False       ; no contour lines
   res@mpFillOn               = False
 
@@ -132,8 +149,8 @@ begin
   res@mpPerimOn              = True      ; draw box around map
   res@mpGridLineDashPattern  = 5         ; lat/lon lines as dashed
 
-  res@gsnAddCyclic           = False     ; regional data don't add
-  res@pmTickMarkDisplayMode  = "Always"  ;
+;  res@gsnAddCyclic           = False     ; regional data don't add
+;  res@pmTickMarkDisplayMode  = "Always"  ;
   res@mpGridAndLimbOn        = False               ; turn on grid lines
   res@lbLabelBarOn           = True 
   res@lbOrientation          =   "vertical"
@@ -145,14 +162,15 @@ begin
   res@tmXTOn = False            ; Turn off top tickmarks.
   res@tmYLOn = False
   res@tmXBOn = False
-  res@gsnCenterString        = dn+"("+yr1+"-"+yr2+")"  ;+" "+snam
+  res@gsnCenterString        = dn+" ("+yr1+"-"+yr2+")"  ;+" "+snam
 
   res@cnLevelSelectionMode   = "ExplicitLevels"
   res@cnLevels = (/-.035,-.03,-.025,-.02,-.015,-.01,-.005,.005,.01,.015,.02,.025,.03,.035/) ; "mm/day"
   cmap = read_colormap_file("hotcold_18lev")
   res@cnFillPalette = cmap
 
-
+; printVarSummary(rg)
+; print(rg)
   plot = gsn_csm_contour_map(wks,rg,res)
 
 ;*****************************************************
