@@ -55,7 +55,8 @@ begin
   n = f->n(:,:,:)
   p = f->p(:,:,:)
   rg = f->n(0,:,:)
-  rg = rg-rg
+  rg = rg-rg                   ; empty field for regression gradients
+  ss = rg                      ; empty field for statistical significance
 
   xlat = f->lat
   xlon = f->lon
@@ -94,9 +95,14 @@ begin
       rt = fq/est
 
       rcl = regline(bins,rt)
+      tval = rcl@tval
+      df = rcl@nptxy-2
+      ssig = betainc(df/(df+tval^2), df/2.0, 0.5)
       delete_VarAtts(rcl,(/"yintercept","yave","xave","nptxy","rstd","tval"/))
      ;print (rcl)
+     ;print (ssig)
 
+      ss(iy,jx) = ssig
       rg(iy,jx) = rcl
     end do
   end do
@@ -120,10 +126,17 @@ begin
   res@gsnFrame            = True              ; don't advance frame yet
 
   res@mpLimitMode       = "Corners"            ; choose range of map
-  res@mpLeftCornerLatF  = xlat(0,0)
-  res@mpLeftCornerLonF  = xlon(0,0)
-  res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
-  res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+;  if ( dn.ne."EURO4M" ) then
+    res@mpLeftCornerLatF  = xlat(0,0)
+    res@mpLeftCornerLonF  = xlon(0,0)
+    res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+    res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+;  else
+;    res@mpLeftCornerLatF  = xlat(300,300)
+;    res@mpLeftCornerLonF  = xlon(0,0)
+;    res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+;    res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+;  end if
 
   prj = "LAMCON" ; f@projection
   clon = 9.75 ; f@longitude_of_projection_origin
@@ -169,9 +182,17 @@ begin
   cmap = read_colormap_file("hotcold_18lev")
   res@cnFillPalette = cmap
 
+  sres = True
+  sres@cnLineLabelsOn       = False
+  sres@cnLineThicknessF     = 2.0
+  sres@tfDoNDCOverlay       = True             ; do not transform
+  sres@cnLevelSelectionMode = "ExplicitLevels" ; use explicit levels
+  sres@cnLevels             = 0.05             ; set the contour levels
+
 ; printVarSummary(rg)
 ; print(rg)
-  plot = gsn_csm_contour_map(wks,rg,res)
+; plot = gsn_csm_contour_map(wks,rg,res)
+  plot = gsn_csm_contour_map_overlay(wks,rg,ss,res,sres)  ; create the overlay plot
 
 ;*****************************************************
 ; save output image
