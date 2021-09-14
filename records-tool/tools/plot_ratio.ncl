@@ -61,7 +61,7 @@ begin
 ;------------------------------------------------
 ; Plot each PDF
 ;------------------------------------------------
-  recs := new ((/2,nbins/), "float")
+  recs := new ((/3,nbins/), "float")
   recs(1,:) = v(:)
   do k =1, nbins
     recs(0,k-1) = 1.0/k
@@ -72,26 +72,44 @@ begin
   run = runave_n(rat,nry,0,0)
   recs(0,:) = (/rat(:)/)
   recs(1,:) = (/run(:)/)
- 
+
+  rcl = regline_stats(bins,run)
+  ;print(rcl) 
+  mval = rcl
+  cval = rcl@yintercept
+  rval = rcl@r2
+  df   = rcl@N-2 ;rcl@nptxy-2
+  ssig = betainc(df/(df+mval^2), df/2.0, 0.5)
+
+  ratv = bins ;ispan(1,nbins,1)
+  ratv := (ratv*mval)+cval
+  recs(2,:) = (/ratv(:)/)
+
   res  = True
   res@tmXTOn = False
   res@tmYROn = False
   res@gsnFrame               = False
   res@gsnDraw                = False
-  res@xyMarkLineModes        = (/"Markers","Lines"/) 
+  res@xyMarkLineModes        = (/"Markers","Lines","Lines"/) 
   res@xyMarkers              = 16 
-  res@xyLineColors           = (/"black","black"/) 
-  res@xyLineThicknesses      = (/3,3/)
-  res@xyDashPatterns         = (/0,0/)
-  res@xyMarkerColors         = (/"blue","blue"/) 
+  res@xyLineColors           = (/"black","black","black"/) 
+  res@xyLineThicknesses      = (/3,3,2/)
+  res@xyDashPatterns         = (/0,0,1/)
+  res@xyMarkerColors         = (/"blue","blue","blue"/) 
   res@xyMarkerSizeF          = 0.005
 
-  res@tiYAxisString          = "frequency (#)"
-  res@tiMainString           = "[Act./Est.] ann. freq. of records based on:"
-  res@gsnCenterString        = dn+" "+snam
+  res@tiYAxisString          = "frequency ratio (actual/expected)"
+  res@tiXAxisString          = "year"
+; res@tiMainString           = "[Act./Est.] ann. freq. of records based on:"
+  if ( dn .eq. "E_OBS" ) then
+    dnttl = "E-OBS"
+  else
+    dnttl = dn
+  end if
+  res@gsnCenterString        = dnttl  ;dn+" "+snam
 
   res@trYMaxF    = 2. 
-  res@trYMinF    = 0. ;1e-10
+  res@trYMinF    = 0.6 ;1e-10
   res@trXMinF    = y1f
   res@trXMaxF    = y2c
   res@tmYLMode = "Manual"
@@ -116,27 +134,47 @@ begin
   res_mark@gsMarkerColor     = "black"
   res_mark@gsMarkerSizeF     = 0.020
 
-  dy = (y2-y1)*6/7
+  dy = (y2-y1)*5.7/7
   xm = y1+dy
-  ym = 1.9
+  ym = 0.90
   res_line@gsLineDashPattern = 2
   dum1 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
-  dum2 = gsn_add_text(wks,plot,"Estimate",xm+2,ym,res_text)  ; add text
+  dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
 
-  ym = 1.85
+  ym = ym-.05
+  res_line@gsLineColor       = "black"
+  res_line@gsLineDashPattern = 1
+  dum3 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
+  dum4 = gsn_add_text(wks,plot,"Linear Trend",xm+2,ym,res_text)  ; add text
+
+  ym = ym-.05
+  mv_mul = mval*1000000
+  mv_rnd = round(mv_mul,1)
+  mval = mv_rnd/10000
+  mv_t = flt2string(mval)
+  dum5 = gsn_add_text(wks,plot,"m  = "+mv_t+"x10~S~-3~N~",xm,ym,res_text)  ; add text
+
+  ym = ym-.05
+  rv_mul = rval*10000
+  rv_rnd = round(rv_mul,1)
+  rval = rv_rnd/10000
+  rv_t = flt2string(rval)
+  dum6 = gsn_add_text(wks,plot,"R~S~2~N~ = "+rv_t,xm,ym,res_text)  ; add text
+
+  ym = ym-.05
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 0
-  dum3 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
-  dum4 = gsn_add_text(wks,plot,nry+"y Run. Avg.",xm+2,ym,res_text)  ; add text
+  dum7 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
+  dum8 = gsn_add_text(wks,plot,nry+"y Run. Avg.",xm+2,ym,res_text)  ; add text
 
-  ym = 1.8
+  ym = ym-.05
   res_mark@gsMarkerColor     = "blue"      
-  dum5 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
-  dum6 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text
+  dum9 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
+  dum10 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text
 
   res_line@gsLineThicknessF  = 3
   res_line@gsLineDashPattern = 2
-  dum7 = gsn_add_polyline(wks,plot,(/y1f,y2c/),(/1.0,1.0/),res_line)
+  dum11 = gsn_add_polyline(wks,plot,(/y1f,y2c/),(/1.0,1.0/),res_line)
 
 ;*****************************************************
 ; save output image

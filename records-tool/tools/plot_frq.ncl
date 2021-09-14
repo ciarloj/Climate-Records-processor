@@ -83,8 +83,14 @@ begin
   res@xyDashPatterns         = (/0,0/)
 
   res@tiYAxisString          = "frequency (#)"
-  res@tiMainString           = "Annual frequency of records based on:"
-  res@gsnCenterString        = dn+" "+snam
+  res@tiXAxisString          = "year"
+; res@tiMainString           = "Annual frequency of records based on:"
+  if ( dn .eq. "E_OBS" ) then
+    dnttl = "E-OBS"
+  else
+    dnttl = dn
+  end if
+  res@gsnCenterString        = dnttl  ;dn+" "+snam
 
   res@trYLog = True
   res@trYMaxF    = 1. 
@@ -109,11 +115,11 @@ begin
   res_mark@gsMarkerColor     = "black"
   res_mark@gsMarkerSizeF     = 0.020
 
-  dy = (stringtointeger(yr2)-y1)*5/7
+  dy = (stringtointeger(yr2)-y1)*6/7
   xm = y1+dy
   ym = 0.8
   dum1 = gsn_add_polyline(wks,plot,(/xm-1,xm+1/),(/ym,ym/),res_line)
-  dum2 = gsn_add_text(wks,plot,"Estimate",xm+2,ym,res_text)  ; add text
+  dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
 
   ym = 0.7
   res_mark@gsMarkerColor     = "blue"      

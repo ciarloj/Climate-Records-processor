@@ -19,6 +19,7 @@ begin
 ; yr1 = "1950"
 ; yr2 = "2100"
 ; dn = "t"
+  tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
   outim = idir+"/regr_"+dn+"_"+stat
   formo = "png"
   wks  = gsn_open_wks ("png",outim)             ; send graphics to PNG file
@@ -50,19 +51,24 @@ begin
   if ( stat .eq. "monsum" ) then
     snam = "monthly total pr (mm/mon)"
   end if
+
+  n1 := stringtointeger(n1)
+  n2 := stringtointeger(n2)
  
   f = addfile(fnam, "r")
-  n = f->n(:,:,:)
-  p = f->p(:,:,:)
-  rg = f->n(0,:,:)
+  n = f->n(n1:n2,:,:)
+  p = f->p(n1:n2,:,:)
+
+  if ( tdim.eq."2d" ) then
+    xlat = f->lat
+    xlon = f->lon
+    dims = dimsizes(xlat)
+    nlat = dims(1)
+    nlon = dims(0)
+  end if
+  rg = n(0,:,:)
   rg = rg-rg                   ; empty field for regression gradients
   ss = rg                      ; empty field for statistical significance
-
-  xlat = f->lat
-  xlon = f->lon
-  dims = dimsizes(xlat)
-  nlat = dims(1)
-  nlon = dims(0)
 
   pdim = dimsizes(n)
   nbins = pdim(0)
@@ -126,26 +132,33 @@ begin
   res@gsnFrame            = True              ; don't advance frame yet
 
   res@mpLimitMode       = "Corners"            ; choose range of map
-;  if ( dn.ne."EURO4M" ) then
-    res@mpLeftCornerLatF  = xlat(0,0)
-    res@mpLeftCornerLonF  = xlon(0,0)
-    res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
-    res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
-;  else
-;    res@mpLeftCornerLatF  = xlat(300,300)
-;    res@mpLeftCornerLonF  = xlon(0,0)
-;    res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
-;    res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
-;  end if
-
-  prj = "LAMCON" ; f@projection
-  clon = 9.75 ; f@longitude_of_projection_origin
-  if (prj .eq. "LAMCON") then
-   ;trlats = f@standard_parallel
-    res@mpProjection        = "LambertConformal"
-    res@mpLambertParallel1F = 30. ;trlats(0)
-    res@mpLambertParallel2F = 65. ;trlats(1)
-    res@mpLambertMeridianF  = clon
+  if ( tdim.eq."2d" ) then
+;   if ( dn.ne."EURO4M" ) then
+      res@mpLeftCornerLatF  = xlat(0,0)
+      res@mpLeftCornerLonF  = xlon(0,0)
+      res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+      res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+;   else
+;     res@mpLeftCornerLatF  = xlat(300,300)
+;     res@mpLeftCornerLonF  = xlon(0,0)
+;     res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+;     res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+;   end if
+    prj = "LAMCON" ; f@projection
+    clon = 9.75    ; f@longitude_of_projection_origin
+    if (prj .eq. "LAMCON") then
+      ;trlats = f@standard_parallel
+      res@mpProjection        = "LambertConformal"
+      res@mpLambertParallel1F = 30. ;trlats(0)
+      res@mpLambertParallel2F = 65. ;trlats(1)
+      res@mpLambertMeridianF  = clon
+    end if
+  end if
+  if ( tdim.eq."1d" ) then
+    res@mpLeftCornerLatF  = min(rg&latitude)
+    res@mpLeftCornerLonF  = min(rg&longitude)
+    res@mpRightCornerLatF = max(rg&latitude)
+    res@mpRightCornerLonF = max(rg&longitude)
   end if
 
   ; usually, when data is placed onto a map, it is TRANSFORMED to the specified
@@ -175,10 +188,17 @@ begin
   res@tmXTOn = False            ; Turn off top tickmarks.
   res@tmYLOn = False
   res@tmXBOn = False
-  res@gsnCenterString        = dn+" ("+yr1+"-"+yr2+")"  ;+" "+snam
+  if ( dn .eq. "E_OBS" ) then
+    dnttl = "E-OBS"
+  else
+    dnttl = dn
+  end if
+  res@gsnCenterString        = dnttl+" ("+yr1+"-"+yr2+")"  ;+" "+snam
 
   res@cnLevelSelectionMode   = "ExplicitLevels"
-  res@cnLevels = (/-.035,-.03,-.025,-.02,-.015,-.01,-.005,.005,.01,.015,.02,.025,.03,.035/) ; "mm/day"
+  res@cnConstFLabelFormat    = "0f3"
+  res@cnLevels = (/-.035,-.030,-.025,-.020,-.015,-.010,.010,.015,.020,.025,.030,.035/) ; "mm/day"
+  res@lbLabelStrings         = sprintf("%4.3f",res@cnLevels)   ; Format the labels
   cmap = read_colormap_file("hotcold_18lev")
   res@cnFillPalette = cmap
 
@@ -188,9 +208,8 @@ begin
   sres@tfDoNDCOverlay       = True             ; do not transform
   sres@cnLevelSelectionMode = "ExplicitLevels" ; use explicit levels
   sres@cnLevels             = 0.05             ; set the contour levels
+  sres@cnInfoLabelOn        = False
 
-; printVarSummary(rg)
-; print(rg)
 ; plot = gsn_csm_contour_map(wks,rg,res)
   plot = gsn_csm_contour_map_overlay(wks,rg,ss,res,sres)  ; create the overlay plot
 

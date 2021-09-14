@@ -4,10 +4,21 @@
 set -eo pipefail
 
 nlist=$1
-statsa="day mon run-7 run-30 timsel"
-statsm="max sum"
+#statsa="day mon run-7 run-30 timsel"
+#statsm="max sum"
 statsa="run-30"
 statsm="max"
+
+ssn=$2 #ann DJF MAM JJA SON
+if [ $ssn != ann ]; then
+  tdir=.tempscripts
+  mkdir -p $tdir
+  newscr=$tdir/$( basename $nlist | cut -d'.' -f1 )-${ssn}.list
+  cp $nlist $newscr
+  dn=$( cat $nlist | grep 'd_nam =' | cut -d"'" -f2 )
+  sed -i $newscr -e "s|d_nam = .*$|d_nam = '"${dn}/${ssn}"'|"
+  nlist=$newscr
+fi
 
 jid=$( bash sub_one.sh main/year-split.sh $nlist | cut -d' ' -f4 )
 dep1="-d afterok:$jid"
