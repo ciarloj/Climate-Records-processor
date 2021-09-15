@@ -2,6 +2,8 @@
 {
 set -eo pipefail
 
+ps=T # T or F process skip
+v=pr
 nlist=$1
 wkd=$( cat $nlist | grep 'wrk_dir =' | cut -d"'" -f2 )
 jm=$( cat $nlist | grep 'job_mst =' | cut -d"'" -f2 )
@@ -22,11 +24,22 @@ mkdir -p $cdir
 
 omf=$mdir/${tpo}.nc
 nmf=$mdir/${tpn}.nc
-eval cdo -O -L -f nc4 -z zip timmean -mergetime $ydir/{${y1}..${y2}}.nc $omf
-eval cdo -O -L -f nc4 -z zip timmean -mergetime $ydir/{${y3}..${y4}}.nc $nmf
+inf1=$ydir/{${y1}..${y2}}.nc
+inf2=$ydir/{${y3}..${y4}}.nc
+[[ $ps != T ]] && eval cdo -O -L -f nc4 -z zip timmean -mergetime $inf1 $omf
+[[ $ps != T ]] && eval cdo -O -L -f nc4 -z zip timmean -mergetime $inf2 $nmf
 
 cf=$cdir/${tpo}_${tpn}.nc
-eval cdo -O -L -f nc4 -z zip sub $nmf $omf $cf
+[[ $ps != T ]] && eval cdo -O -L -f nc4 -z zip sub $nmf $omf $cf
+
+idir=$wkd/$jm/images
+mkdir -p $idir
+
+dfil=$cf
+dn=$( echo $dn | sed -e 's|/|-|' )
+dn=$( echo $dn | sed -e 's/E_OBS/E-OBS/' )
+args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" tpo="'$tpo'" tpn="'$tpn'" dn="'$dn'" v="'$v'"'
+ncl -Q $args tools/plot_change.ncl
 
 echo "Complete."
 
