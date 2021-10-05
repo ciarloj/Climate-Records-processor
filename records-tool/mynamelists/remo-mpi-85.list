@@ -8,7 +8,7 @@ d_dir = '/home/esp-shared-a/Observations/E_OBS/v20e/025'
 d_fnm = 'rr_ens_mean_0.25deg_reg_v20.0e.nc'
 # analysis details
 var = 'pr'
-fyr = '1950'
+fyr = '1970'
 lyr = '2100'
 stat = 'runmax' # options: day | monmax/sum | runmax/sum | timselmax/sum
 s_nd = '30'   # for run/timsel[stat] ; 7 - week ; 30 - mon

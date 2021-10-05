@@ -7,6 +7,7 @@ ssn=$1 #ann DJF MAM JJA SON
 #dlist="eobs era5 regcm-erain"
 #tslice=N
 dlist="regcm-mpi-85 regcm-mpi-26 remo-mpi-85 remo-mpi-26"
+dlist="remo-mpi-85 remo-mpi-26"
 tslice=Y #Y or N
 [[ $tslice = Y ]] && tper=2010-2100 || tper=""
 

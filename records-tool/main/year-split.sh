@@ -24,9 +24,11 @@ if [ $y_sp = 'true' ]; then
   for y in $( seq $y1 $y2 ); do
     echo "working on $y.."
     cdo -O -L -f nc4 -z zip selyear,$y $sf $ydir/${y}.nc
-    if [ $vv = pr -a $dn = E_OBS ]; then
-      ncrename -O -v rr,$vv $ydir/${y}.nc
-      ncap2 -O -s "pr=pr.float()" $ydir/${y}.nc $ydir/${y}.nc
+    if [ $dn = E_OBS ]; then
+      [[ $vv = pr ]] && vo=rr
+      [[ $vv = tas ]] && vo=tg
+      ncrename -O -v ${vo},$vv $ydir/${y}.nc
+      ncap2 -O -s "${vv}=${vv}.float()" $ydir/${y}.nc $ydir/${y}.nc
     fi
   done
   echo "## Year-split done."

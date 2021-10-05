@@ -11,6 +11,7 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"   
+load "tools/trimPNG.ncl"
 
 begin
 ;idir = "images"
@@ -222,6 +223,6 @@ begin
 ;  maximize_output(wks,resP)
 ;
    print("saved "+outim+"."+formo)
-
+   trimPNG(outim+"."+formo)
 
 end

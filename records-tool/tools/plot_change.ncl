@@ -11,13 +11,14 @@
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_code.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/gsn_csm.ncl"   
 ; load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/contributed.ncl"   
+load "tools/trimPNG.ncl"
 
 begin
 ;idir = "images"
 ; dn = "t"
 ; v = "pr"
   tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
-  outim = idir+"/change_"+dn+"_"+tpo+"_"+tpn
+  outim = idir+"/change_"+v+"_"+dn+"_"+tpo+"_"+tpn
   formo = "png"
   wks  = gsn_open_wks (formo,outim)             ; send graphics to PNG file
 
@@ -95,14 +96,24 @@ begin
   else
     dnttl = dn
   end if
+  res@gsnLeftString          = ""
+  res@gsnRightString         = ""
   res@gsnCenterString        = dnttl+" ~F33~D~F21~ ("+tpn+")-("+tpo+")"  
 
   res@cnLevelSelectionMode   = "ExplicitLevels"
   res@cnConstFLabelFormat    = "0f1"
-  res@cnLevels = (/-2,-1.6,-1.2,-.8,-.4,-.1,.1,.4,.8,1.2,1.6,2/) 
+  if ( v .eq. "pr" ) then
+    res@cnLevels = (/-2,-1,-.5,-.4,-.3,-.2,-.1,.1,.2,.3,.4,.5,1,2/) 
 ;;  res@lbLabelStrings         = sprintf("%4.3f",res@cnLevels)   ; Format the labels
-  cmap = read_colormap_file("cmocean_curl")
-  res@cnFillPalette = cmap
+    cmap = read_colormap_file("cmocean_curl")
+    cmap = cmap(::-1,:) ; reverse the color map
+    res@cnFillPalette = cmap
+  end if
+  if ( v .eq. "tas" ) then
+    res@cnLevels = (/-3,-2,-1.6,-1.2,-.8,-.4,-.2,.2,.4,.8,1.2,1.6,2,3/)
+    cmap = read_colormap_file("cmp_b2r")
+    res@cnFillPalette = cmap
+  end if
 
   sres = True
   sres@cnLineLabelsOn       = False
@@ -123,6 +134,6 @@ begin
 ;  maximize_output(wks,resP)
 ;
    print("saved "+outim+"."+formo)
-
+   trimPNG(outim+"."+formo)
 
 end

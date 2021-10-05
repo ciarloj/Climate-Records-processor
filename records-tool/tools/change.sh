@@ -2,9 +2,9 @@
 {
 set -eo pipefail
 
-ps=T # T or F process skip
-v=pr
+ps=F # T or F : process skip
 nlist=$1
+v=$( cat $nlist | grep 'var =' | cut -d"'" -f2 )
 wkd=$( cat $nlist | grep 'wrk_dir =' | cut -d"'" -f2 )
 jm=$( cat $nlist | grep 'job_mst =' | cut -d"'" -f2 )
 dn=$( cat $nlist | grep 'd_nam =' | cut -d"'" -f2 )
