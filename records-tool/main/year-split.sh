@@ -44,7 +44,7 @@ if [ $y_tr = 'true' ]; then
     set +e
     d=$( ncdump -h $ydir/../${y}.nc | grep -i time | head -1 | cut -d'(' -f2 | cut -d' ' -f1 )
     set -e
-    if [ $d -ne 365 ]; then
+    if [ $d -gt 365 ]; then
       echo "trimming $y.."
       cdo -O -L -f nc4 -z zip delete,day=29,month=2 $ydir/../${y}.nc $ydir/${y}.nc
     else
