@@ -17,6 +17,8 @@ begin
   idir = "/home/netapp-clima-scratch/jciarlo/records/images"
   sdir = "/home/netapp-clima-scratch/jciarlo/records/"
   stat = "runmax-30"
+  yo1 = "1970"
+  yo2 = "2100"
   yr1 = "2010"
   yr2 = "2100"
   tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
@@ -67,10 +69,17 @@ begin
     ny = pdim(1)
     nx = pdim(2)
 
-    est = new ((/nbins/), "float")
-    do k =1, nbins
-      est(k-1) = 1.0/k
+    ;setting expected start year from initial analysis year (in namelist)
+    yro1 = stringtointeger(yo1)
+    yro2 = stringtointeger(yo2)
+    yr_orig := ispan(yro1,yro2,1)
+    nyr_orig = dimsizes(yr_orig)
+
+    esto = new ((/nyr_orig/), "float")
+    do k =1, nyr_orig
+      esto(k-1) = 1.0/k
     end do
+    est = esto(n1:n2)
 
     np = ny*nx
     print("ny x nx = "+ny+" x "+nx+" = "+np)
@@ -88,7 +97,7 @@ begin
         fq = i_n/i_p
         rt = fq/est
   
-        rcl = regline(bins,rt)
+        rcl = regline(yr_orig(n1:n2),rt)
         tval = rcl@tval
         df = rcl@nptxy-2
         ssig = betainc(df/(df+tval^2), df/2.0, 0.5)

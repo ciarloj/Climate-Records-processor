@@ -3,8 +3,8 @@
 set -eo pipefail
 
 nlist=$1
-tslice=$2 #Y or N
-[[ $tslice = Y ]] && tper=$3
+tslice=Y #Y or N
+[[ $tslice = Y ]] && tper=$2
 wkd=$( cat $nlist | grep 'wrk_dir =' | cut -d"'" -f2 )
 jm=$( cat $nlist | grep 'job_mst =' | cut -d"'" -f2 )
 dn=$( cat $nlist | grep 'd_nam =' | cut -d"'" -f2 )
@@ -31,7 +31,7 @@ if [ $tslice = Y ]; then
 else
   n1=0
   n2=$(( $y2 - $y1 ))
-fi  
+fi
 
 hdir=$wkd/$jm/$dn
 ydir=$hdir
@@ -48,28 +48,21 @@ else
 fi
 ddir=$ydir/records/sum
 if [ $rel = 'true' -a $msl = 'true' ]; then
-  dnam=index_remap_mask.nc
+  dnam=index_remap_mask
 elif [ $rel = 'true' -a $msl = 'false' ]; then
-  dnam=index_remap.nc
+  dnam=index_remap
 elif [ $rel = 'false' -a $msl = 'true' ]; then
   echo "ERROR! remap = false + mask = true"
   exit 1
 else
-  dnam=index.nc
+  dnam=index
 fi
-din=$ddir/$dnam
-dfil=$din
-
-# control dimensionality of lat/lon
-latlin=$( ncdump -h $dfil | grep ' lat' | head -1 | grep ',' )
-[[ ! -z "$latlin" ]] && dimsz=2d || dimsz=1d
+din=$ddir/${dnam}_fld_norm.nc
 
 idir=$wkd/$jm/images
 mkdir -p $idir
 
-dn=$( echo $dn | sed -e 's|/|-|' )
-dn=$( echo $dn | sed -e 's/E_OBS/E-OBS/' )
-args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" yr1="'$y1'" yr2="'$y2'" dn="'$dn'" n1="'$n1'" n2="'$n2'" tdim="'$dimsz'" yo1="'$yo1'" yo2="'$yo2'"'
-ncl -Q $args tools/regression.ncl
+args='idir="'$idir'" stat="'$sdir'" fnam="'$din'" yr1="'$y1'" yr2="'$y2'" dn="'$dn'" n1="'$n1'" n2="'$n2'" yo1="'$yo1'" yo2="'$yo2'"'
+ncl -Q $args tools/plot_ratio_slice.ncl
 
 }

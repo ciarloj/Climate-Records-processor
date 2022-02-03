@@ -20,7 +20,7 @@ begin
 ; yr1 = "1950"
 ; yr2 = "2100"
 ; dn = "t"
-  tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
+; tdim  = "2d"      ; type of dimensions for lat/lon = "1d" or "2d"
   outim = idir+"/regr_"+dn+"_"+stat
   formo = "png"
   wks  = gsn_open_wks ("png",outim)             ; send graphics to PNG file
@@ -80,10 +80,17 @@ begin
   ny = pdim(1)
   nx = pdim(2)
 
-  est = new ((/nbins/), "float")
-  do k =1, nbins
-    est(k-1) = 1.0/k
+  ;setting expected start year from initial analysis year (in namelist)
+  yro1 = stringtointeger(yo1)
+  yro2 = stringtointeger(yo2)
+  yr_orig := ispan(yro1,yro2,1)
+  nyr_orig = dimsizes(yr_orig)
+
+  esto = new ((/nyr_orig/), "float")
+  do k =1, nyr_orig
+    esto(k-1) = 1.0/k
   end do
+  est = esto(n1:n2)
 
   np = ny*nx
   print("ny x nx = "+ny+" x "+nx+" = "+np)
@@ -101,7 +108,7 @@ begin
       fq = i_n/i_p
       rt = fq/est
 
-      rcl = regline(bins,rt)
+      rcl = regline(yr_orig(n1:n2),rt)
       tval = rcl@tval
       df = rcl@nptxy-2
       ssig = betainc(df/(df+tval^2), df/2.0, 0.5)
@@ -134,24 +141,17 @@ begin
 
   res@mpLimitMode       = "Corners"            ; choose range of map
   if ( tdim.eq."2d" ) then
-;   if ( dn.ne."EURO4M" ) then
-      res@mpLeftCornerLatF  = xlat(0,0)
-      res@mpLeftCornerLonF  = xlon(0,0)
-      res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
-      res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
-;   else
-;     res@mpLeftCornerLatF  = xlat(300,300)
-;     res@mpLeftCornerLonF  = xlon(0,0)
-;     res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
-;     res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
-;   end if
-    prj = "LAMCON" ; f@projection
-    clon = 9.75    ; f@longitude_of_projection_origin
+    res@mpLeftCornerLatF  = xlat(0,0)
+    res@mpLeftCornerLonF  = xlon(0,0)
+    res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+    res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
+    prj = f@projection
+    clon = f@longitude_of_projection_origin
     if (prj .eq. "LAMCON") then
-      ;trlats = f@standard_parallel
+      trlats = f@standard_parallel
       res@mpProjection        = "LambertConformal"
-      res@mpLambertParallel1F = 30. ;trlats(0)
-      res@mpLambertParallel2F = 65. ;trlats(1)
+      res@mpLambertParallel1F = trlats(0)
+      res@mpLambertParallel2F = trlats(1)
       res@mpLambertMeridianF  = clon
     end if
   end if
