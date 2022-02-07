@@ -21,7 +21,7 @@ begin
   tpn = "2070-2100"
   v = "pr"
   tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
-  outim = idir+"/figS1_change_rcms_pr"
+  outim = idir+"/figS2_change_rcms_pr"
   formo = "png"
   wks  = gsn_open_wks (formo,outim)             ; send graphics to PNG file
 

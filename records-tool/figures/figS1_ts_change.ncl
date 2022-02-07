@@ -20,7 +20,7 @@ begin
   stat = "runmax-30"
   yr1 = "1950"
   yr2 = "2018"
-  outim = idir+"/figS3_ts_change"
+  outim = idir+"/figS1_ts_change"
   formo = "png"
   wks  = gsn_open_wks ("png",outim)             ; send graphics to PNG file
   nry = 10 ; number of years of running mean
@@ -28,6 +28,7 @@ begin
   dn = "E_OBS"
   vars = (/"pr","tas"/)
   dirs = (/"records","tas-rec"/)
+  stts = (/"mean","mean"/)
   plot = new((/2/),graphic)
   dum1 = new((/2/),graphic)
   dum2 = new((/2/),graphic)
@@ -38,9 +39,10 @@ begin
   do m=0, 1
     var = vars(m)
     d = dirs(m)
+    ss = stts(m)
 
     sdir = "/home/netapp-clima-scratch/jciarlo/"+d+"/"  
-    fnam = sdir+dn+"/fldtimmean/merge.nc"
+    fnam = sdir+dn+"/fldtim"+ss+"/merge.nc"
     f = addfile(fnam, "r")
     v = f->$var$(:,0,0)
 

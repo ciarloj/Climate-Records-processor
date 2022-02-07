@@ -186,7 +186,7 @@ begin
 
     res@cnLevelSelectionMode   = "ExplicitLevels"
     res@cnConstFLabelFormat    = "0f2"
-    res@cnLevels = (/-.35,-.30,-.25,-.20,-.15,-.10,-.05,.05,.10,.15,.20,.25,.30,.35/)
+    res@cnLevels = (/-.25,-.20,-.15,-.10,-.05,-.02,-.01,.01,.02,.05,.10,.15,.20,.25/)
     res@lbLabelStrings         = sprintf("%4.2f",res@cnLevels)   ; Format the labels
     cmap = read_colormap_file("hotcold_18lev")
     res@cnFillPalette = cmap
