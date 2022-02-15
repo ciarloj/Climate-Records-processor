@@ -83,7 +83,7 @@ begin
     res@cnFillOn               = True      ; color plot desired
     res@cnFillMode             = "RasterFill"
     res@cnLinesOn              = False       ; no contour lines
-    res@mpFillOn               = False
+    res@mpFillOn               = True 
 
     res@mpGeophysicalLineColor = "black"     ; color of continental outlines
     res@mpPerimOn              = True      ; draw box around map

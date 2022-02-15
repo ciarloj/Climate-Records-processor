@@ -61,7 +61,9 @@ din=$ddir/$dnam
 dfil=$din
 
 # control dimensionality of lat/lon
+set +e
 latlin=$( ncdump -h $dfil | grep ' lat' | head -1 | grep ',' )
+set -e
 [[ ! -z "$latlin" ]] && dimsz=2d || dimsz=1d
 
 idir=$wkd/$jm/images

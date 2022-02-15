@@ -131,6 +131,10 @@ begin
   delete(rcl)
   delete(est)
 
+; rsmth = smth9_Wrap(rg,0.50,-0.25,False) ; light local smoothing
+  rsmth = smth9_Wrap(rg,0.50,0.25,False) ; heavy local smoothing
+  rg := rsmth
+
  ;***********************
  ; plot
  ;***********************
@@ -170,7 +174,7 @@ begin
   res@cnFillOn               = True      ; color plot desired
   res@cnFillMode             = "RasterFill"
   res@cnLinesOn              = False       ; no contour lines
-  res@mpFillOn               = False
+  res@mpFillOn               = True 
 
   res@mpGeophysicalLineColor = "black"     ; color of continental outlines
   res@mpPerimOn              = True      ; draw box around map
@@ -197,9 +201,9 @@ begin
   res@gsnCenterString        = dnttl+" ("+yr1+"-"+yr2+")"  ;+" "+snam
 
   res@cnLevelSelectionMode   = "ExplicitLevels"
-  res@cnConstFLabelFormat    = "0f2"
-  res@cnLevels = (/-.35,-.30,-.25,-.20,-.15,-.10,.10,.15,.20,.25,.30,.35/) ; "mm/day"
-  res@lbLabelStrings         = sprintf("%4.2f",res@cnLevels)   ; Format the labels
+  res@cnConstFLabelFormat    = "0f3"
+  res@cnLevels = (/-.035,-.030,-.025,-.020,-.015,-.010,.010,.015,.020,.025,.030,.035/) 
+  res@lbLabelStrings         = sprintf("%4.3f",res@cnLevels)   ; Format the labels
   cmap = read_colormap_file("hotcold_18lev")
   res@cnFillPalette = cmap
 
