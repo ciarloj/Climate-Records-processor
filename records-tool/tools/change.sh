@@ -2,6 +2,10 @@
 {
 set -eo pipefail
 
+CDO(){
+  cdo -O -L -f nc4 -z zip $@
+}
+
 ps=F # T or F : process skip
 nlist=$1
 v=$( cat $nlist | grep 'var =' | cut -d"'" -f2 )
@@ -26,11 +30,11 @@ omf=$mdir/${tpo}.nc
 nmf=$mdir/${tpn}.nc
 inf1=$ydir/{${y1}..${y2}}.nc
 inf2=$ydir/{${y3}..${y4}}.nc
-[[ $ps != T ]] && eval cdo -O -L -f nc4 -z zip timmean -mergetime $inf1 $omf
-[[ $ps != T ]] && eval cdo -O -L -f nc4 -z zip timmean -mergetime $inf2 $nmf
+[[ $ps != T ]] && eval CDO timmean -mergetime $inf1 $omf
+[[ $ps != T ]] && eval CDO timmean -mergetime $inf2 $nmf
 
 cf=$cdir/${tpo}_${tpn}.nc
-[[ $ps != T ]] && eval cdo -O -L -f nc4 -z zip sub $nmf $omf $cf
+[[ $ps != T ]] && eval CDO sub $nmf $omf $cf
 
 idir=$wkd/$jm/images
 mkdir -p $idir
@@ -38,7 +42,16 @@ mkdir -p $idir
 dfil=$cf
 dn=$( echo $dn | sed -e 's|/|-|' )
 dn=$( echo $dn | sed -e 's/E_OBS/E-OBS/' )
-args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" tpo="'$tpo'" tpn="'$tpn'" dn="'$dn'" v="'$v'"'
+
+# control dimensionality of lat/lon
+set +e
+rcm=$( echo $dn | cut -d- -f2 )
+[[ $rcm = REMO ]] && ilat=rlat || ilat=lat
+latlin=$( ncdump -h $dfil | grep " $ilat" | head -1 | grep ',' )
+set -e
+[[ ! -z "$latlin" ]] && dimsz=2d || dimsz=1d
+
+args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" tpo="'$tpo'" tpn="'$tpn'" dn="'$dn'" v="'$v'" tdim="'$dimsz'"'
 ncl -Q $args tools/plot_change.ncl
 
 echo "Complete."

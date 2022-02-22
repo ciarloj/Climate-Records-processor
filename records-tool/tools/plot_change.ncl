@@ -17,7 +17,9 @@ begin
 ;idir = "images"
 ; dn = "t"
 ; v = "pr"
-  tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
+; tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
+
+  dn_str = str_split(dn,"-")
   outim = idir+"/change_"+v+"_"+dn+"_"+tpo+"_"+tpn
   formo = "png"
   wks  = gsn_open_wks (formo,outim)             ; send graphics to PNG file
@@ -25,9 +27,27 @@ begin
   f = addfile(fnam, "r")
   pv = f->$v$(0,:,:)
 
+  if ( dn_str(1).eq."MERRA" .or. dn_str(1).eq."JRA" ) then
+    n!1 = "latitude"
+    n!2 = "longitude"
+    p!1 = "latitude"
+    p!2 = "longitude"
+  end if
+  if ( tdim.eq."1d" .and. dn_str(1).eq."ERA5" ) then
+    n = n(:,::-1,:)
+    p = p(:,::-1,:)
+  end if
   if ( tdim.eq."2d" ) then
-    xlat = f->lat
-    xlon = f->lon
+    if ( dn_str(1).eq."REGCM" ) then
+      ilat = "lat"
+      ilon = "lon"
+    end if
+    if ( dn_str(1).eq."REMO" ) then
+      ilat = "rlat"
+      ilon = "rlon"
+    end if
+    xlat = f->$ilat$
+    xlon = f->$ilon$
     dims = dimsizes(xlat)
     nlat = dims(1)
     nlon = dims(0)
@@ -47,14 +67,48 @@ begin
     res@mpLeftCornerLonF  = xlon(0,0)
     res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
     res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
-    prj = "LAMCON" ; f@projection
-    clon = 9.75    ; f@longitude_of_projection_origin
-    if (prj .eq. "LAMCON") then
-      ;trlats = f@standard_parallel
-      res@mpProjection        = "LambertConformal"
-      res@mpLambertParallel1F = 30. ;trlats(0)
-      res@mpLambertParallel2F = 65. ;trlats(1)
-      res@mpLambertMeridianF  = clon
+    if ( dn_str(1) .eq. "REMO" ) then
+      res@mpProjection        = "CylindricalEquidistant"
+      rll = f->rotated_latitude_longitude
+      plat = rll@grid_north_pole_latitude
+      plon = rll@grid_north_pole_longitude
+      res@mpCenterLonF = 180.0+plon
+      res@mpCenterLatF = 90.0-plat
+    else
+      if ( dn_str(0) .eq. "NAM" ) then
+        rm = f->rotated_mercator
+        prj = "ROTMER"
+        clon = rm@longitude_of_projection_origin
+        ff = rm
+      else
+        prj = f@projection
+        clon = f@longitude_of_projection_origin
+        ff = f
+      end if
+      if (prj .eq. "LAMCON") then
+        trlats = f@standard_parallel
+        res@mpProjection        = "LambertConformal"
+        res@mpLambertParallel1F = trlats(0)
+        res@mpLambertParallel2F = trlats(1)
+        res@mpLambertMeridianF  = clon
+      end if
+      if (prj .eq. "NORMER") then
+        res@mpProjection        = "Mercator"
+      end if
+      if (prj .eq. "POLSTR") then
+        clat = f@latitude_of_projection_origin
+        res@mpProjection        = "Stereographic"
+        res@mpRelativeCenterLon = True
+        res@mpCenterLonF = clon
+        res@mpRelativeCenterLat = True
+        res@mpCenterLatF = clat
+      end if
+      if (prj .eq. "ROTMER") then
+        clat = ff@latitude_of_projection_origin
+        res@mpProjection        = "Mercator"
+        res@mpCenterLonF = clon
+        res@mpCenterLatF = clat
+      end if
     end if
   end if
   if ( tdim.eq."1d" ) then

@@ -62,7 +62,9 @@ dfil=$din
 
 # control dimensionality of lat/lon
 set +e
-latlin=$( ncdump -h $dfil | grep ' lat' | head -1 | grep ',' )
+rcm=$( echo $dn | cut -d- -f2 )
+[[ $rcm = REMO ]] && ilat=rlat || ilat=lat
+latlin=$( ncdump -h $dfil | grep " $ilat" | head -1 | grep ',' )
 set -e
 [[ ! -z "$latlin" ]] && dimsz=2d || dimsz=1d
 
