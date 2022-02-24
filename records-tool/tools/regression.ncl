@@ -72,10 +72,19 @@ begin
     n = n(:,::-1,:)
     p = p(:,::-1,:)
   end if  
+  if ( tdim.eq."1d" .and. dn_str(1).eq."JRA" ) then
+    n = n(:,::-1,:)
+    p = p(:,::-1,:)
+  end if
   if ( tdim.eq."2d" ) then
     if ( dn_str(1).eq."REGCM" ) then
-      ilat = "lat"
-      ilon = "lon"
+      if ( dn.eq."NAM-REGCM-MPI-85" ) then
+        ilat = "lat_2"
+        ilon = "lon_2"
+      else
+        ilat = "lat"
+        ilon = "lon"
+      end if
     end if
     if ( dn_str(1).eq."REMO" ) then
       ilat = "rlat"
