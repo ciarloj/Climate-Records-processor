@@ -45,13 +45,15 @@ dn=$( echo $dn | sed -e 's/E_OBS/E-OBS/' )
 
 # control dimensionality of lat/lon
 set +e
-rcm=$( echo $dn | cut -d- -f2 )
-[[ $rcm = REMO ]] && ilat=rlat || ilat=lat
-latlin=$( ncdump -h $dfil | grep " $ilat" | head -1 | grep ',' )
+stn1='standard_name = "latitude"'
+stn2='standard_name = "longitude"'
+dim1=$( ncdump -h $dfil | grep "$stn1" | cut -d':' -f1 | cut -d$'\t' -f3 )
+dim2=$( ncdump -h $dfil | grep "$stn2" | cut -d':' -f1 | cut -d$'\t' -f3 )
+dimt=$( ncdump -h $dfil | grep " ${dim1}(" | head -1 | grep ',' )
 set -e
-[[ ! -z "$latlin" ]] && dimsz=2d || dimsz=1d
+[[ ! -z "$dimt" ]] && dimsz=2d || dimsz=1d
 
-args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" tpo="'$tpo'" tpn="'$tpn'" dn="'$dn'" v="'$v'" tdim="'$dimsz'"'
+args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" tpo="'$tpo'" tpn="'$tpn'" dn="'$dn'" v="'$v'" tdim="'$dimsz'" dim1="'$dim1'" dim2="'$dim2'"'
 ncl -Q $args tools/plot_change.ncl
 
 echo "Complete."

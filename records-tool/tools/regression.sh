@@ -62,18 +62,20 @@ dfil=$din
 
 # control dimensionality of lat/lon
 set +e
-rcm=$( echo $dn | cut -d- -f2 )
-[[ $rcm = REMO ]] && ilat=rlat || ilat=lat
-latlin=$( ncdump -h $dfil | grep " $ilat" | head -1 | grep ',' )
+stn1='standard_name = "latitude"'
+stn2='standard_name = "longitude"'
+dim1=$( ncdump -h $dfil | grep "$stn1" | cut -d':' -f1 | cut -d$'\t' -f3 )
+dim2=$( ncdump -h $dfil | grep "$stn2" | cut -d':' -f1 | cut -d$'\t' -f3 ) 
+dimt=$( ncdump -h $dfil | grep " ${dim1}(" | head -1 | grep ',' )
 set -e
-[[ ! -z "$latlin" ]] && dimsz=2d || dimsz=1d
+[[ ! -z "$dimt" ]] && dimsz=2d || dimsz=1d
 
 idir=$wkd/$jm/images
 mkdir -p $idir
 
 dn=$( echo $dn | sed -e 's|/|-|' )
 dn=$( echo $dn | sed -e 's/E_OBS/E-OBS/' )
-args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" yr1="'$y1'" yr2="'$y2'" dn="'$dn'" n1="'$n1'" n2="'$n2'" tdim="'$dimsz'" yo1="'$yo1'" yo2="'$yo2'"'
+args='idir="'$idir'" stat="'$sdir'" fnam="'$dfil'" yr1="'$y1'" yr2="'$y2'" dn="'$dn'" n1="'$n1'" n2="'$n2'" tdim="'$dimsz'" dim1="'$dim1'" dim2="'$dim2'" yo1="'$yo1'" yo2="'$yo2'"'
 ncl -Q $args tools/regression.ncl
 
 }

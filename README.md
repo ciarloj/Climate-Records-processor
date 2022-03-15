@@ -15,7 +15,7 @@ Set up a namelist (basic namelist: INPUT.list) in the mynamelists directory (mos
 
 sub.sh is the main tool needed to run the entire sequence, and multuple statistics (but this can be personalized)
 
-Additional tools are available in the tools directory.
+Additional tools are available in the tools directory. The NCL scripts that plot spatial maps are configured to recognise RegCM and REMO model data, as well as any data used in the analysis of Giorgi & Ciarlo (submitted) and follow-up studies.
 
 
 ## References

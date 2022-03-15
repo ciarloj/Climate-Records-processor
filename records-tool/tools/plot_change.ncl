@@ -27,39 +27,29 @@ begin
   f = addfile(fnam, "r")
   pv = f->$v$(0,:,:)
 
-  if ( dn_str(1).eq."MERRA" .or. dn_str(1).eq."JRA" ) then
-    n!1 = "latitude"
-    n!2 = "longitude"
-    p!1 = "latitude"
-    p!2 = "longitude"
-  end if
-  if ( tdim.eq."1d" .and. dn_str(1).eq."ERA5" ) then
-    n = n(:,::-1,:)
-    p = p(:,::-1,:)
-  end if
-  if ( tdim.eq."1d" .and. dn_str(1).eq."JRA" ) then
-    n = n(:,::-1,:)
-    p = p(:,::-1,:)
-  end if
+  ilat = dim1
+  ilon = dim2
   if ( tdim.eq."2d" ) then
-    if ( dn_str(1).eq."REGCM" ) then
-      if ( dn.eq."NAM-REGCM-MPI-85" ) then
-        ilat = "lat_2"
-        ilon = "lon_2"
-      else
-        ilat = "lat"
-        ilon = "lon"
-      end if
-    end if
     if ( dn_str(1).eq."REMO" ) then
-      ilat = "rlat"
-      ilon = "rlon"
+      xlat = f->$ilat$
+      xlon = f->$ilon$
+      rpol = f->rotated_latitude_longitude
+      plat = rpol@grid_north_pole_latitude
+      plon = rpol@grid_north_pole_longitude
+      pv@lat2d = xlat
+      pv@lon2d = xlon
+    else
+      xlat = f->$ilat$
+      xlon = f->$ilon$
     end if
-    xlat = f->$ilat$
-    xlon = f->$ilon$
     dims = dimsizes(xlat)
-    nlat = dims(1)
-    nlon = dims(0)
+    if ( dn_str(1).eq."REMO" ) then
+      nlat = dims(0)
+      nlon = dims(1)
+    else
+      nlat = dims(1)
+      nlon = dims(0)
+    end if
   end if
 
  ;***********************
@@ -67,25 +57,45 @@ begin
  ;***********************
 
   res  = True
+  sres = True
   res@gsnDraw             = True              ; don't draw yet
   res@gsnFrame            = True              ; don't advance frame yet
 
   res@mpLimitMode       = "Corners"            ; choose range of map
+  res@tfDoNDCOverlay         = True      ; do not transform
+  sres@tfDoNDCOverlay        = True 
   if ( tdim.eq."2d" ) then
-    res@mpLeftCornerLatF  = xlat(0,0)
-    res@mpLeftCornerLonF  = xlon(0,0)
-    res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
-    res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
     if ( dn_str(1) .eq. "REMO" ) then
-      res@mpProjection        = "CylindricalEquidistant"
-      rll = f->rotated_latitude_longitude
-      plat = rll@grid_north_pole_latitude
-      plon = rll@grid_north_pole_longitude
-      res@mpCenterLonF = 180.0+plon
-      res@mpCenterLatF = 90.0-plat
+      res@tfDoNDCOverlay        = False      ; do not transform
+      sres@tfDoNDCOverlay       = False
+     ;res@mpProjection        = "CylindricalEquidistant"
+      if ( dn_str(0).ne."AUS" .and.  dn_str(0).ne."EAS" ) then
+        xlon = where(xlon.gt.180,xlon-360,xlon)
+      end if
+      res@mpLeftCornerLatF  = xlat(0,0)
+      res@mpLeftCornerLonF  = xlon(0,0)
+      res@mpRightCornerLatF = xlat(nlat-1,nlon-1)
+      res@mpRightCornerLonF = xlon(nlat-1,nlon-1)
+     ;llon = res@mpLeftCornerLonF
+     ;rlon = res@mpRightCornerLonF
+     ;tlat = res@mpRightCornerLatF
+     ;blat = res@mpRightCornerLatF
+      res@mpCenterLonF = xlon(nlat/2,nlon/2) ; llon + ((rlon - llon)/2)
+      res@mpCenterLatF = xlat(nlat/2,nlon/2) ;tlat - ((tlat - blat)/2)
+     ;print(llon+" "+rlon)
+     ;print(blat+" "+tlat)
     else
+      res@mpLeftCornerLatF  = xlat(0,0)
+      res@mpLeftCornerLonF  = xlon(0,0)
+      res@mpRightCornerLatF = xlat(nlon-1,nlat-1)
+      res@mpRightCornerLonF = xlon(nlon-1,nlat-1)
       if ( dn_str(0) .eq. "NAM" ) then
-        rm = f->rotated_mercator
+        if ( dn.eq."NAM-REGCM-MPI-85" ) then
+          rv="oblique_mercator"
+        else
+          rv="rotated_mercator"
+        end if
+        rm = f->$rv$
         prj = "ROTMER"
         clon = rm@longitude_of_projection_origin
         ff = rm
@@ -121,17 +131,16 @@ begin
     end if
   end if
   if ( tdim.eq."1d" ) then
-    res@mpLeftCornerLatF  = min(pv&latitude)
-    res@mpLeftCornerLonF  = min(pv&longitude)
-    res@mpRightCornerLatF = max(pv&latitude)
-    res@mpRightCornerLonF = max(pv&longitude)
+    res@mpLeftCornerLatF  = min(pv&$ilat$)
+    res@mpLeftCornerLonF  = min(pv&$ilon$)
+    res@mpRightCornerLatF = max(pv&$ilat$)
+    res@mpRightCornerLonF = max(pv&$ilon$)
   end if
 
   ; usually, when data is placed onto a map, it is TRANSFORMED to the specified
   ; projection. Since this model is already on a native lambert conformal grid,
   ; we want to turn OFF the tranformation.
 
-  res@tfDoNDCOverlay         = True      ; do not transform
   res@cnFillOn               = True      ; color plot desired
   res@cnFillMode             = "RasterFill"
   res@cnLinesOn              = False       ; no contour lines
@@ -178,10 +187,8 @@ begin
     res@cnFillPalette = cmap
   end if
 
-  sres = True
   sres@cnLineLabelsOn       = False
   sres@cnLineThicknessF     = 2.0
-  sres@tfDoNDCOverlay       = True             ; do not transform
   sres@cnLevelSelectionMode = "ExplicitLevels" ; use explicit levels
   sres@cnLevels             = 0.05             ; set the contour levels
   sres@cnInfoLabelOn        = False
