@@ -185,18 +185,34 @@ begin
       if ( dn_str(0).ne."AUS" .and.  dn_str(0).ne."EAS" ) then
         xlon = where(xlon.gt.180,xlon-360,xlon)
       end if
-      res@mpLeftCornerLatF  = xlat(0,0)  
-      res@mpLeftCornerLonF  = xlon(0,0) 
-      res@mpRightCornerLatF = xlat(nlat-1,nlon-1)  
-      res@mpRightCornerLonF = xlon(nlat-1,nlon-1) 
-     ;llon = res@mpLeftCornerLonF
-     ;rlon = res@mpRightCornerLonF
-     ;tlat = res@mpRightCornerLatF
-     ;blat = res@mpRightCornerLatF
-      res@mpCenterLonF = xlon(nlat/2,nlon/2) ; llon + ((rlon - llon)/2)
-      res@mpCenterLatF = xlat(nlat/2,nlon/2) ;tlat - ((tlat - blat)/2)
-     ;print(llon+" "+rlon)
-     ;print(blat+" "+tlat)
+      dllon = 0
+      dllat = 0
+      drlon = 0
+      drlat = 0
+      if ( dn_str(0).eq."WAS" ) then
+        dllat = -6
+        drlat =  1 
+        drlon =  9
+      end if
+      if ( dn_str(0).eq."SEA" ) then
+        drlon =  5
+        dllat = -2
+      end if
+      if ( dn_str(0).eq."EAS" ) then
+        drlon =  2
+        dllat = -2
+      end if
+      if ( dn_str(0).eq."EUR" ) then
+        drlat = -3
+        drlon =  8
+        dllon = -2
+      end if
+      res@mpLeftCornerLatF  = xlat(0,0) + dllat
+      res@mpLeftCornerLonF  = xlon(0,0) + dllon
+      res@mpRightCornerLatF = xlat(nlat-1,nlon-1) + drlat  
+      res@mpRightCornerLonF = xlon(nlat-1,nlon-1) + drlon
+      res@mpCenterLonF = xlon(nlat/2,nlon/2) 
+      res@mpCenterLatF = xlat(nlat/2,nlon/2) 
     else
       res@mpLeftCornerLatF  = xlat(0,0)
       res@mpLeftCornerLonF  = xlon(0,0)
