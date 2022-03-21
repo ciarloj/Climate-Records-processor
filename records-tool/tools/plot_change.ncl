@@ -20,6 +20,7 @@ begin
 ; tdim  = "1d"      ; type of dimensions for lat/lon = "1d" or "2d"
 
   dn_str = str_split(dn,"-")
+  nd_str = dimsizes(dn_str)
   outim = idir+"/change_"+v+"_"+dn+"_"+tpo+"_"+tpn
   formo = "png"
   wks  = gsn_open_wks (formo,outim)             ; send graphics to PNG file
@@ -29,6 +30,14 @@ begin
 
   ilat = dim1
   ilon = dim2
+  if ( nd_str .gt. 1 ) then
+    if ( tdim.eq."1d" .and. dn_str(1).eq."ERA5" ) then
+      pv = pv(::-1,:)
+    end if
+    if ( tdim.eq."1d" .and. dn_str(1).eq."JRA" ) then
+      pv = pv(::-1,:)
+    end if
+  end if
   if ( tdim.eq."2d" ) then
     if ( dn_str(1).eq."REMO" ) then
       xlat = f->$ilat$
@@ -219,7 +228,7 @@ begin
 ;
 ;  maximize_output(wks,resP)
 ;
-   print("saved "+outim+"."+formo)
+   print("saved")
    trimPNG(outim+"."+formo)
 
 end
