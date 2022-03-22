@@ -86,17 +86,18 @@ begin
       drlon = 0
       drlat = 0
       if ( dn_str(0).eq."WAS" ) then
-        dllat = -6
-        drlat =  1
-        drlon =  9
+        dllat = -3
+        dllon =  1
+        drlat =  2
+        drlon =  2
       end if
       if ( dn_str(0).eq."SEA" ) then
         drlon =  5
         dllat = -2
       end if
       if ( dn_str(0).eq."EAS" ) then
-        drlon =  2
-        dllat = -2
+        drlon =  4
+        dllat = -3
       end if
       if ( dn_str(0).eq."EUR" ) then
         drlat = -3
