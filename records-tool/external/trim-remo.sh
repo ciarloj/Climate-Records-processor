@@ -16,7 +16,7 @@ d=$( echo $m | cut -d- -f1 )
 
 #lonE,lonW,latS,latN
 #[[ $d = NAM ]] && box="-169,-47,23,75"
-[[ $d = CAM ]] && box="-120,-40,-2,35"
+[[ $d = CAM ]] && box="-120,-40,5,35"
 #[[ $d = SAM ]] && box="-89,-30,-58,14"
 #[[ $d = AFR ]] && box="-26.7,60.8,-37.6,42."
 [[ $d = WAS ]] && box="55,95,2,47"
@@ -28,7 +28,7 @@ d=$( echo $m | cut -d- -f1 )
 
 
 echo "## $m .."
-od=$m/v1
+od=$m/v2
 if [ ! -d $od ]; then
   mkdir -p $od
   mv $m/????.nc $od/

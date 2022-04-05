@@ -151,7 +151,7 @@ begin
   ym = ym-.05
   mv_mul = mval*1000000
   mv_rnd = round(mv_mul,1)
-  mval = mv_rnd/10000
+  mval = mv_rnd/1000
   mv_t = flt2string(mval)
   dum5 = gsn_add_text(wks,plot,"m  = "+mv_t+"x10~S~-3~N~",xm,ym,res_text)  ; add text
 
