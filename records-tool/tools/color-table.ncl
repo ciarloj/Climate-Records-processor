@@ -2,95 +2,73 @@
 ; Procedure to attach a horizontal labelbar to the bottom of plot.
 ;----------------------------------------------------------------------
 load "tools/trimPNG.ncl"
-
-undef("add_labelbar")
-procedure add_labelbar(wks,plot,colors,labels)
-local vph, vpw, nboxes, lbres, lbid, amres, annoid
-begin
-  getvalues plot                      ; Get plot size for use in
-    "vpHeightF" : vph                 ; creating labelbar.
-    "vpWidthF"  : vpw
-  end getvalues
-
-  nboxes = dimsizes(colors)
-
-  lbres                    = True          ; labelbar only resources
-  lbres@lbAutoManage       = True          ; Necessary to control sizes
-  lbres@vpWidthF           = 0.15 * vpw    ; labelbar width
-  lbres@vpHeightF          = 0.95 * vph    ; labelbar height
-  lbres@lbFillColors       = colors        ; labelbar colors
-  lbres@lbMonoFillPattern  = True          ; Solid fill pattern
-  lbres@lbLabelFontHeightF = 0.05          ; font height. default is small
-  lbres@lbLabelAlignment   = "BoxCenters"  ; center of box
-  lbres@lbOrientation      = "Vertical"
-  lbres@lbPerimOn          = False
-
-  lbres@lbLabelAlignment   = "InteriorEdges"
-  lbres@lbBoxEndCapStyle   = "TriangleBothEnds"
-
-  lbid = gsn_create_labelbar(wks,nboxes,labels,lbres)
-   
-;
-; Now, create some annotation resources indicating how we want to
-; attach the labelbar to the plot. Here, we are using the top right
-; corner of the labelbar as the point which we are going to position
-; it, and then we use amParallelPosF and amOrthogonalPosF to indicate
-; where we want to place it.
-;
-; amParallelPosF/amOrthogonalPosF                                       ;
-;    0.0/ 0.0  -  annotation in dead center of plot
-;    0.5/ 0.5  -  annotation at bottom right of plot
-;    0.5/-0.5  -  annotation at top right of plot
-;   -0.5/-0.5  -  annotation at top left of plot
-;   -0.5/ 0.5  -  annotation at bottom left of plot
-;                                                                 
-  amres                  = True
-  amres@amJust           = "CenterLeft"
-  amres@amParallelPosF   =  0.52
-  amres@amOrthogonalPosF =  0.0
-  plot@annoid = gsn_add_annotation(plot,lbid,amres)
-end
+load "tools/add_labelbar.ncl"
 
 ;----------------------------------------------------------------------
 ; Main code
 ;----------------------------------------------------------------------
 begin
-;;yr="2000"
-
-; idir = "images"
-; stat = "day"
-; fnam = "dir/index_fld_norm.nc"
-  yr1 = "2005"
-  yr2 = "2099"
-; dn = "t"
   nry = 10 ; number of years of running mean
+  user = "lbelleri"
+  user2 = "jciarlo"
 
+  subj = "models"
   stat = "runmax-30"
-  rcp  = "85"
-  hdir = "/home/netapp-clima-scratch/lbelleri/records/"
+  rcp  = "26"
+  if ( subj.eq."models" .and. rcp.eq."85" ) then
+    yr1 = "2005"
+    yr2 = "2099"
+  end if
+  if ( subj.eq."models" .and. rcp.eq."26" ) then
+    yr1 = "2005"
+    yr2 = "2098"
+  end if
+  if ( subj.eq."reanalysis-3" ) then
+    yr1 = "1980"
+    yr2 = "2020"
+  end if
+  if ( subj.eq."reanalysis-2" ) then
+    yr1 = "1950"
+    yr2 = "2020"
+  end if
+  hdir = "/home/netapp-clima-scratch/"+user+"/records/"
   idir = "trim/"+stat+"/records/sum/"
   frm = "png"
-  img = hdir+"../../jciarlo/records/"+"table-rcp"+rcp
+  if ( subj.eq."models" ) then
+    suffix = subj+"-rcp"+rcp+"-"+yr1+"-"+yr2
+  else
+    suffix = subj+"-"+yr1+"-"+yr2
+  end if
+  img = hdir+"../../"+user2+"/records/"+"table-"+suffix
 
-  rcms=(/"R1","R2"/)
-  gcms=(/"GH","GM","GL"/)
-  mr_sz = dimsizes(rcms)
-  mg_sz = dimsizes(gcms)
-  c_sz = mr_sz*mg_sz
-  clabs = new((/c_sz/),"string")
-  r = 0
-  g = 0
-  do ii=0, c_sz-1
-    rcm = rcms(r)
-    gcm = gcms(g)
-    clabs(ii) = rcm+"-"+gcm
-    if ( g.lt.2 ) then
-      g = g + 1
-    else
-      g = 0
-      r = r + 1
+  if ( subj.eq."models" ) then
+    rcms=(/"R1","R2"/)
+    gcms=(/"GH","GM","GL"/)
+    mr_sz = dimsizes(rcms)
+    mg_sz = dimsizes(gcms)
+    c_sz = mr_sz*mg_sz
+    clabs = new((/c_sz/),"string")
+    r = 0
+    g = 0
+    do ii=0, c_sz-1
+      rcm = rcms(r)
+      gcm = gcms(g)
+      clabs(ii) = rcm+"-"+gcm
+      if ( g.lt.2 ) then
+        g = g + 1
+      else
+        g = 0
+        r = r + 1
+      end if
+    end do
+  else
+    if ( subj.eq."reanalysis-3" ) then
+      clabs = (/"ERA5","MERRA","JRA"/)
+    else 
+      clabs = (/"ERA5","JRA"/)
     end if
-  end do
+    c_sz = dimsizes(clabs)
+  end if
 
   doms = (/"NAM","CAM","SAM","EUR","AFR","CAS","WAS","EAS","SEA","AUS"/)
   rlabs = doms
@@ -103,52 +81,76 @@ begin
     nr = doms(i)
     do mi=0, c_sz-1
       m = clabs(mi)
-      ms = str_split(m,"-")
-      rlab = ms(0)
-      if ( rlab.eq."R1" ) then
-        rnam = "REGCM"
-      end if
-      if ( rlab.eq."R2" ) then
-        rnam = "REMO"
-      end if
-      glab = ms(1)
-      if ( glab.eq."GH" ) then
-        gnam = "HADGEM"
-        if ( rnam.eq."REGCM" .and. nr.eq."WAS" ) then
-          gnam = "MIROC"
+      if ( subj.eq."models" ) then
+        ms = str_split(m,"-")
+        rlab = ms(0)
+        if ( rlab.eq."R1" ) then
+          rnam = "REGCM"
         end if
-      end if
-      if ( glab.eq."GM" ) then
-        gnam = "MPI"
-      end if
-      if ( glab.eq."GL" ) then
-        gnam = "NORESM"
-        if ( nr.eq."NAM" .or. nr.eq."CAM" ) then
-          if ( rnam.eq."REGCM" ) then
-            gnam = "GFDL"
+        if ( rlab.eq."R2" ) then
+          rnam = "REMO"
+        end if
+        glab = ms(1)
+        if ( glab.eq."GH" ) then
+          gnam = "HADGEM"
+          if ( rnam.eq."REGCM" .and. nr.eq."WAS" ) then
+            gnam = "MIROC"
           end if
         end if
+        if ( glab.eq."GM" ) then
+          gnam = "MPI"
+        end if
+        if ( glab.eq."GL" ) then
+          gnam = "NORESM"
+          if ( nr.eq."NAM" .or. nr.eq."CAM" ) then
+            if ( rnam.eq."REGCM" ) then
+              gnam = "GFDL"
+            end if
+          end if
+        end if
+        ddir = hdir+nr+"-"+rnam+"-"+gnam+"-"+rcp+"/"+idir
+      else
+        mlab = m
+        if ( m.eq."JRA" ) then
+          mlab = "JRA-55"
+        end if
+        ddir = hdir+nr+"-"+mlab+"/"+idir
       end if
-      ddir = hdir+nr+"-"+rnam+"-"+gnam+"-"+rcp+"/"+idir
       fnam = ddir+"index_fld_norm.nc"
 
       misdat = "N"
-      if ( rcp.eq."26" .and. nr.eq."NAM" .and. rnam.eq."REGCM" ) then
-        misdat = "Y"
-      end if
-      if ( nr.eq."CAS" .and. rnam.eq."REGCM" ) then
-        misdat = "Y"
+      if ( subj.eq."models" ) then
+        if ( rcp.eq."26" .and. nr.eq."NAM" .and. rnam.eq."REGCM" ) then
+          misdat = "Y"
+        end if
+        if ( nr.eq."CAS" .and. rnam.eq."REGCM" ) then
+          misdat = "Y"
+        end if
       end if
 
       if ( misdat.eq."N" ) then
         f = addfile(fnam,"r")
         v = f->n(:,0,0)
+        t := cd_calendar(f->time,0)
+        t := t(:,0)
 
         pdim = dimsizes(v)
         nbins = pdim(0)
         y1 = stringtointeger(yr1)
         y2 = stringtointeger(yr2)
         bins := ispan(y1,y1-1+nbins,1)
+
+        ; find integer values of common years
+        dszn = dimsizes(t)
+        do n = 0, dszn-1
+          tn = t(n)
+          if ( tn.eq.yr1 ) then
+            n1 = n
+          end if
+          if ( tn.eq.yr2 ) then
+            n2 = n
+          end if
+        end do
 
         recs := new ((/3,nbins/), "float")
         recs(1,:) = v(:)
@@ -157,17 +159,12 @@ begin
         end do
 
         rat = recs(1,:)/recs(0,:)
+        rat := rat(n1:n2)
         run = runave_n(rat,nry,0,0)
+        rbins := bins(n1:n2)
 
-        rcl = regline_stats(bins,run)
+        rcl = regline_stats(rbins,run)
         mval = rcl
-       ;cval = rcl@yintercept
-       ;rval = rcl@r2
-       ;df   = rcl@N-2 ;rcl@nptxy-2
-       ;ssig = betainc(df/(df+mval^2), df/2.0, 0.5)
-
-       ;ratv = bins ;ispan(1,nbins,1)
-       ;ratv := (ratv*mval)+cval
 
         mv_mul = mval*1000000
         mv_rnd = round(mv_mul,1)
@@ -204,8 +201,34 @@ begin
   colors = (/"White","Black","blue4","blue3","blue1","dodgerblue",\
              "MediumTurquoise","paleturquoise2","aliceblue","rosybrown1",\
              "indianred1","orangered","orangered3","Brown","saddlebrown"/)
+  if ( subj.eq."models" ) then
+    bwr_n = (/50, 54, 58, 62, 66, 70, 74, 78, 82, 86, 90, 94, 100/)
+  else
+    bwr_n = (/40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100/)
+  end if
+  bwr_q = dimsizes(bwr_n)
+  colf = "tools/BlWhRe.rgb"
+  do c=0 , bwr_q-1
+    bwr_i = bwr_n(c)
+    ac := asciiread(colf, (/bwr_i+3/), "string")
+    ac := ac(bwr_i+2)
+    nc := str_split(ac, " ")
+    rd := stringtofloat(nc(0))/255
+    gn := stringtofloat(nc(1))/255
+    bl := stringtofloat(nc(2))/255
+    rd := decimalPlaces(rd,2,True)
+    gn := decimalPlaces(gn,2,True)
+    bl := decimalPlaces(bl,2,True)
+    colors(c+2) = "(/"+rd+", "+gn+", "+bl+"/)"
+  end do
+ ;print(colors)
+
   col_sz = dimsizes(colors)
-  crange = (/-5.,-2.5,-2,-1.5,-1,-.1,.1,1,1.5,2,2.5,5/)
+  if ( subj.eq."models" ) then
+    crange = (/0.,1,2,3,4,5,6,7,8,9,10,11,12/)
+  else
+    crange = (/-2,-1,0.,1,2,3,4,5,6,7,8,9,10/)
+  end if
   labels = new(dimsizes(colors)-1,"string")    ; for labelbar
 
 ; Assign a color to a particular range of data.
@@ -229,24 +252,25 @@ begin
                           colors(i),cols_for_vals)
     ;print(i+": "+rng_beg+" "+rng_end+": "+colors(i))
 ;---Create formatted labels for the labelbar
-    labels(i-2) = sprintf("%3.1f",rng_end) 
+    labels(i-2) = sprintf("%3.0f",rng_end) 
                   ;sprintf("%3.1f", rng_beg) + " - " + \
                   ;sprintf("%3.1f",rng_end)
   end do
 
-  cols_for_txt = where(cols_for_vals.eq."Navy" .or. \
-                      cols_for_vals.eq."MediumBlue" .or. \
-                      cols_for_vals.eq."blue4".or. \
-                      cols_for_vals.eq."blue3" .or. \
-                      cols_for_vals.eq."blue1" .or. \
-                      cols_for_vals.eq."Brown" .or. \
-                      cols_for_vals.eq."saddlebrown", "white","black")
+; cols_for_txt = where(cols_for_vals.eq."Navy" .or. \
+;                     cols_for_vals.eq."MediumBlue" .or. \
+;                     cols_for_vals.eq."blue4".or. \
+;                     cols_for_vals.eq."blue3" .or. \
+;                     cols_for_vals.eq."blue1" .or. \
+;                     cols_for_vals.eq."Brown" .or. \
+;                     cols_for_vals.eq."saddlebrown", "white","black")
+  cols_for_txt(:,:) = "black"
   cols_for_vals = where(ismissing(cols_for_vals),"grey",cols_for_vals)
   cols_for_txt = where(ismissing(cols_for_txt),"white",cols_for_txt) 
 
 ; Start the graphics.
   wks = gsn_open_wks(frm,img)
-  gsn_define_colormap(wks,colors) ;"BlueDarkRed18")
+  gsn_define_colormap(wks,colors) 
 
 ; Create a blank plot so we can get some tickmarks.
 ;
@@ -259,9 +283,13 @@ begin
   resb@gsnFrame                = False
 
   resb@vpYF                    = 0.92
-  resb@vpXF                    = 0.20 ;0.10
+  resb@vpXF                    = 0.20
   resb@vpHeightF               = 0.85
-  resb@vpWidthF                = 0.60 ;0.75
+  if ( subj.eq."models" ) then
+    resb@vpWidthF              = 0.60
+  else
+    resb@vpWidthF              = 0.30
+  end if
 
 ; Explicitly label X axis. The blank plot goes from 0 to 1, by default.
   resb@tmXBMode                = "Explicit"
@@ -316,12 +344,16 @@ begin
   gsn_table(wks,ncr,x,y,vals_txt,rest)    ; Draw table
 
   res_text                   = True              ; text mods desired
-  res_text@txFontHeightF     = 0.020             ; change text size
+  if ( subj.eq."models" ) then
+    res_text@txFontHeightF   = 0.018             ; change text size
+  else
+    res_text@txFontHeightF   = 0.015
+  end if
   res_text@txJust            = "CenterLeft"      ; text justification
   dum = gsn_add_text(wks,blank,"(x10~S~-3~N~)",1.0,0.0,res_text)  ; add text
-  
-  draw(blank)
 
+  draw(blank)
+  
 ; Advance the frame.
   frame(wks)
 
