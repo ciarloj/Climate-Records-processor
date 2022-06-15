@@ -135,8 +135,7 @@ begin
 
   maximize_output(wks,resP)
 
-  print("saved "+outim+"."+formo)
-
+; print("saved "+outim+"."+formo)
   trimPNG(outim+"."+formo)
 
 end

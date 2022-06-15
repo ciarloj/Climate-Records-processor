@@ -85,6 +85,9 @@ begin
   recs(0,:) = (/rat(:)/)
   recs(1,:) = (/run(:)/)
 
+ ;; where condition for single point testing - comment for analysis
+ ;recs = where(recs.eq.0,recs@_FillValue,recs)
+
   rcl = regline_stats(yr_orig(n1:n2),run)
   ;print(rcl) 
   mval = rcl
@@ -166,6 +169,11 @@ begin
   mv_t = flt2string(mval)
   dum5 = gsn_add_text(wks,plot,"m  = "+mv_t+"x10~S~-3~N~",xm,ym,res_text)  ; add text
 
+  system("dirname "+fnam+" > tmp.txt")
+  dnam := asciiread("tmp.txt", (/1/), "string")
+  system("rm tmp.txt")
+  system("echo "+mv_t+" > "+dnam+"/ratio-gradient_10p-3.txt")
+
   ym = ym-.05
   rv_mul = rval*10000
   rv_rnd = round(rv_mul,1)
@@ -196,8 +204,7 @@ begin
 
   maximize_output(wks,resP)
 
-  print("saved "+outim+"."+formo)
-
+; print("saved "+outim+"."+formo)
   trimPNG(outim+"."+formo)
 
 end
