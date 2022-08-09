@@ -12,9 +12,9 @@ begin
   user = "lbelleri"
   user2 = "jciarlo"
 
-  subj = "models"
+  subj = "reanalysis-3"
   stat = "runmax-30"
-  rcp  = "26"
+  rcp  = "85"
   if ( subj.eq."models" .and. rcp.eq."85" ) then
     yr1 = "2005"
     yr2 = "2099"
@@ -28,7 +28,7 @@ begin
     yr2 = "2020"
   end if
   if ( subj.eq."reanalysis-2" ) then
-    yr1 = "1950"
+    yr1 = "1960"
     yr2 = "2020"
   end if
   hdir = "/home/netapp-clima-scratch/"+user+"/records/"
@@ -163,7 +163,7 @@ begin
         run = runave_n(rat,nry,0,0)
         rbins := bins(n1:n2)
 
-        rcl = regline_stats(rbins,run)
+        rcl = regline_stats(rbins,rat)
         mval = rcl
 
         mv_mul = mval*1000000
@@ -186,7 +186,11 @@ begin
   ncols = ncr(1)
   nrows = ncr(0) 
 
-  col_width  = 1./ncols
+;  if ( subj.eq."reanalysis-2" ) then
+;    col_width  = 1./3.
+;  else 
+    col_width  = 1./ncols 
+;  end if
   row_width  = 1./nrows
   col_width2 = col_width/2.
   row_width2 = row_width/2.

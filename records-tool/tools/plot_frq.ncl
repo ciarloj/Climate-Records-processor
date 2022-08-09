@@ -104,7 +104,7 @@ begin
 ; Manually create and attach legend
 ;*****************************************************
   res_text                   = True              ; text mods desired
-  res_text@txFontHeightF     = 0.010             ; change text size
+  res_text@txFontHeightF     = 0.022             ; change text size
   res_text@txJust            = "CenterLeft"      ; text justification
 
   res_line                   = True
@@ -116,13 +116,13 @@ begin
   res_mark@gsMarkerColor     = "black"
   res_mark@gsMarkerSizeF     = 0.020
 
-  dy = (stringtointeger(yr2)-y1)*6/7
+  dy = (stringtointeger(yr2)-y1)*5/7
   xm = y1+dy
   ym = 0.8
   dum1 = gsn_add_polyline(wks,plot,(/xm-1,xm+1/),(/ym,ym/),res_line)
   dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
 
-  ym = 0.7
+  ym = 0.65
   res_mark@gsMarkerColor     = "blue"      
   dum3 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
   dum4 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text

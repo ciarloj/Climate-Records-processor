@@ -114,7 +114,9 @@ begin
   res@xyMarkerSizeF          = 0.005
 
   res@tiYAxisString          = "frequency ratio (actual/expected)"
+  res@tiYAxisFontHeightF     = 0.03
   res@tiXAxisString          = "year"
+  res@tiXAxisFontHeightF     = 0.03
 ; res@tiMainString           = "[Act./Est.] ann. freq. of records based on:"
   if ( dn .eq. "E_OBS" ) then
     dnttl = "E-OBS"
@@ -137,7 +139,7 @@ begin
 ; Manually create and attach legend
 ;*****************************************************
   res_text                   = True              ; text mods desired
-  res_text@txFontHeightF     = 0.010             ; change text size
+  res_text@txFontHeightF     = 0.025             ; change text size
   res_text@txJust            = "CenterLeft"      ; text justification
 
   res_line                   = True
@@ -156,16 +158,15 @@ begin
   dum1 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.05
+  ym = ym-.1
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 1
   dum3 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum4 = gsn_add_text(wks,plot,"Linear Trend",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.05
-  mv_mul = mval*1000000
-  mv_rnd = round(mv_mul,1)
-  mval = mv_rnd/10000
+  ym = ym-.1
+  mv_rnd = decimalPlaces(mval,5,True)
+  mval = mv_rnd*1000
   mv_t = flt2string(mval)
   dum5 = gsn_add_text(wks,plot,"m  = "+mv_t+"x10~S~-3~N~",xm,ym,res_text)  ; add text
 
@@ -174,20 +175,20 @@ begin
   system("rm tmp.txt")
   system("echo "+mv_t+" > "+dnam+"/ratio-gradient_10p-3.txt")
 
-  ym = ym-.05
+  ym = ym-.1
   rv_mul = rval*10000
   rv_rnd = round(rv_mul,1)
   rval = rv_rnd/10000
   rv_t = flt2string(rval)
   dum6 = gsn_add_text(wks,plot,"R~S~2~N~ = "+rv_t,xm,ym,res_text)  ; add text
 
-  ym = ym-.05
+  ym = ym-.1
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 0
   dum7 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum8 = gsn_add_text(wks,plot,nry+"y Run. Avg.",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.05
+  ym = ym-.1
   res_mark@gsMarkerColor     = "blue"      
   dum9 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
   dum10 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text

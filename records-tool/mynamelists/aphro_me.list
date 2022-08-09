@@ -1,0 +1,29 @@
+# input paths and choices
+# main job control
+wrk_dir = '/home/netapp-clima-scratch/jciarlo'
+job_mst = 'records'
+# data input  
+d_nam = 'APHRO-ME'
+#d_dir ='/home/netapp-clima-scratch/lbelleri/records'
+#d_fnm =''
+# analysis details
+var = 'pr'
+fyr = '1951'
+lyr = '2007'
+stat = 'runmax' # options: day | monmax/sum | runmax/sum | timselmax/sum
+s_nd = '30'   # for run/timsel[stat] ; 7 - week ; 30 - mon
+# running switches
+yr_split = 'false' #true if the file has to be splitted 
+yr_trimm = 'true' # always false with monmax/sum
+yr_stats = 'true' # always false with day
+yr_recor = 'true'
+yr_tmsum = 'true'
+yr_merge = 'true'
+yr_norma = 'true'
+# grid information
+remaplog = 'false'         # true = final plot requires remap
+remaptyp = 'dis'           # cdo remap options: dis, bil, bic, nn (only)
+gridfile = '/home/netapp-clima-scratch/jciarlo/records/E_OBS/1980.nc'
+# # # mask information
+masklog = 'false'          # true = final plot requires masking (after remap)
+maskfil = '/home/netapp-clima-scratch/jciarlo/temp/sftlf_EUR-11_ECMWF-ERAINT_evaluation_r1i1p1_ICTP-RegCM4-6_v1_fx.nc'
