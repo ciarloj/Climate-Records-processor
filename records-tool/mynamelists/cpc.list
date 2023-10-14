@@ -8,10 +8,10 @@ d_dir = '/home/netapp-clima-scratch/jciarlo/records/source'
 d_fnm = 'cpc_day_1979-2018.nc'
 # analysis details
 var = 'pr'
-fyr = '1979'
-lyr = '2018'
-stat = 'day' # options: day | monmax/sum | runmax/sum | timselmax/sum
-s_nd = '7'   # for run/timsel[stat] ; 7 - week ; 30 - mon
+fyr = '1980'
+lyr = '2020'
+stat = 'runmax'
+s_nd = '30'
 # running switches
 yr_split = 'false'
 yr_trimm = 'true' # always false with monmax/sum

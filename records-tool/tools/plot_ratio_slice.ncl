@@ -88,7 +88,7 @@ begin
  ;; where condition for single point testing - comment for analysis
  ;recs = where(recs.eq.0,recs@_FillValue,recs)
 
-  rcl = regline_stats(yr_orig(n1:n2),run)
+  rcl = regline_stats(yr_orig(n1:n2),rat)
   ;print(rcl) 
   mval = rcl
   cval = rcl@yintercept
@@ -139,7 +139,7 @@ begin
 ; Manually create and attach legend
 ;*****************************************************
   res_text                   = True              ; text mods desired
-  res_text@txFontHeightF     = 0.025             ; change text size
+  res_text@txFontHeightF     = 0.022             ; change text size
   res_text@txJust            = "CenterLeft"      ; text justification
 
   res_line                   = True
@@ -151,22 +151,22 @@ begin
   res_mark@gsMarkerColor     = "black"
   res_mark@gsMarkerSizeF     = 0.020
 
-  dy = (y2-y1)*5.7/7
+  dy = (y2-y1)*0.5/7
   xm = y1+dy
-  ym = 0.90
+  ym = 0.93
   res_line@gsLineDashPattern = 2
   dum1 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.1
+  ym = ym-.07
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 1
   dum3 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum4 = gsn_add_text(wks,plot,"Linear Trend",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.1
+  ym = ym-.07
   mv_rnd = decimalPlaces(mval,5,True)
-  mval = mv_rnd*1000
+  mval = mv_rnd*10
   mv_t = flt2string(mval)
   dum5 = gsn_add_text(wks,plot,"m  = "+mv_t+"x10~S~-3~N~",xm,ym,res_text)  ; add text
 
@@ -175,20 +175,20 @@ begin
   system("rm tmp.txt")
   system("echo "+mv_t+" > "+dnam+"/ratio-gradient_10p-3.txt")
 
-  ym = ym-.1
+  ym = ym-.07
   rv_mul = rval*10000
   rv_rnd = round(rv_mul,1)
   rval = rv_rnd/10000
   rv_t = flt2string(rval)
   dum6 = gsn_add_text(wks,plot,"R~S~2~N~ = "+rv_t,xm,ym,res_text)  ; add text
 
-  ym = ym-.1
+  ym = ym-.07
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 0
   dum7 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum8 = gsn_add_text(wks,plot,nry+"y Run. Avg.",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.1
+  ym = ym-.07
   res_mark@gsMarkerColor     = "blue"      
   dum9 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
   dum10 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text

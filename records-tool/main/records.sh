@@ -1,6 +1,9 @@
 #!/bin/bash
 {
 set -eo pipefail
+CDO(){
+  cdo -O -L -f nc4 -z zip $@
+}
 
 nlist=$1
 wkd=$( cat $nlist | grep 'wrk_dir =' | cut -d"'" -f2 )
@@ -22,7 +25,7 @@ y_ts=$( cat $nlist | grep 'yr_tmsum =' | cut -d"'" -f2 )
 y_mg=$( cat $nlist | grep 'yr_merge =' | cut -d"'" -f2 )
 y_nm=$( cat $nlist | grep 'yr_norma =' | cut -d"'" -f2 )
 [[ $st = day ]] && y_st='false'
-[[ $st = monmax ]] && y_tr='false'
+#[[ $st = monmax ]] && y_tr='false'
 [[ $st = monsum ]] && y_tr='false'
 
 if [ -z $ym ]; then
@@ -34,7 +37,8 @@ fi
 v=$vv
 hdir=$wkd/$jm/$dn
 ydir=$hdir
-if [ $st != monmax -a $st != monsum ]; then
+#if [ $st != monmax -a $st != monsum ]; then
+if [ $y_tr = true ]; then
   ydir=$hdir/trim
 fi
 if [ $st != day ]; then
@@ -53,7 +57,7 @@ if [ $y_rc = true ]; then
   mkdir -p $rdir
   cp $ydir/${y1}.nc $rfb
   cp $rfb ${rf}_2.nc
-  cdo -O -L -f nc4 -z zip sub $rfb ${rf}_2.nc ${rf}_0.nc
+  CDO sub $rfb ${rf}_2.nc ${rf}_0.nc
   rm ${rf}_2.nc
   mv ${rf}_0.nc $rfb
   ncrename -O -v $v,max $rfb
@@ -77,7 +81,7 @@ if [ $y_rc = true ]; then
     fi
     mv ${ouf}_t.nc $ouf 
     #ncap2 -O -s "n=$v-$v; where($v > max) n=1; where(n==1) max=$v" $ouf $ouf
-    cdo -O -L -f nc4 -z zip selvar,max $ouf $rf
+    CDO selvar,max $ouf $rf
     ncks -A -v time $inf $ouf
   done
   echo "Record assessment complete."
@@ -94,13 +98,13 @@ if [ $y_ts = true ]; then
     echo "Summing $y .."
     inf=$rdir/${y}.nc
     ouf=$tdir/${y}.nc
-    cdo -O -L -f nc4 -z zip timsum -selvar,n,p $inf $ouf
+    CDO timsum -selvar,n,p $inf $ouf
     ncatted -O -a units,n,m,c,"#" $ouf
   done
 fi 
 if [ $y_mg = true ]; then
   echo "## Merging sums."
-  eval cdo -O -L -f nc4 -z zip mergetime $tdir/{${y1}..${y2}}.nc $ff
+  eval CDO mergetime $tdir/{${y1}..${y2}}.nc $ff
   echo "Sum complete."
   echo ""
 fi
@@ -110,8 +114,8 @@ ffn=$tdir/index_fld_norm.nc
 if [ $y_nm = true ]; then
   echo "## Normalising Records."
  #np=$( ncdump -v np $cfs | tail -2 | head -1 | cut -d' ' -f3 )
-  cdo -O -L -f nc4 -z zip fldsum $ff $fff
-  cdo -O -L -f nc4 -z zip chname,nn,n -selvar,nn -aexpr,"nn=n/p" $fff $ffn
+  CDO fldsum $ff $fff
+  CDO chname,nn,n -selvar,nn -aexpr,"nn=n/p" $fff $ffn
  #cdo -O -L -f nc4 -z zip divc,$np $fff $ffn
   echo "Normalising complete."
   echo ""

@@ -173,7 +173,7 @@ begin
   end if
   res@gsnCenterString        = dnttl  
 
-  res@trYMaxF    = 2.
+  res@trYMaxF    = 2.7
   res@trYMinF    = 0.6 
   res@trXMinF    = y1f
   res@trXMaxF    = y2c
@@ -202,40 +202,49 @@ begin
   pv_rnd = decimalPlaces(pval,2,True)
   pv_txt = where(pv_rnd.lt.0.01,"0.00",""+pv_rnd)
 
-  if ( pv_rnd(0) .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "deepskyblue1"
-  else
-    res_text@txBackgroundFillColor = "Transparent"
-  end if
   dy = (y2-y1)*0.5/7
   xm = y1+dy
-  ym = 1.93
-  res_line@gsLineDashPattern = 0
-  tstring := "RegCM ("+mv_t(0)+", "+pv_txt(0)+")"
+  ym = 2.5
+
   if ( dnsplt(0).eq."NAM" .and. rcp.eq."26" ) then
     nothing = "nothing"
-  else
+  else 
+    if ( pv_rnd(0) .le. 0.05 ) then
+      res_text@txFont = "22"
+;     res_text@txBackgroundFillColor = "deepskyblue1"
+    else
+      res_text@txFont = "21"
+;     res_text@txBackgroundFillColor = "Transparent"
+    end if
+    res_line@gsLineDashPattern = 0
+    tstring := "RegCM ("+mv_t(0)+", "+pv_txt(0)+")"
     dum1 = gsn_add_polyline(wks,plot,(/xm-3,xm+1/),(/ym,ym/),res_line)
     dum2 = gsn_add_text(wks,plot,tstring,xm+2,ym,res_text) ;add text
+;   res_text@txBackgroundFillColor = "Transparent"
+    res_text@txFont = "21"
   end if
-  res_text@txBackgroundFillColor = "Transparent"
 
   if ( pv_rnd(1) .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "indianred"
+    res_text@txFont = "22"
+;   res_text@txBackgroundFillColor = "indianred"
   else
-    res_text@txBackgroundFillColor = "Transparent"
+    res_text@txFont = "21"
+;   res_text@txBackgroundFillColor = "Transparent"
   end if
   ym = ym-.08
   res_line@gsLineColor       = "Red"
   tstring := "REMO ("+mv_t(1)+", "+pv_txt(1)+")"
   dum3 = gsn_add_polyline(wks,plot,(/xm-3,xm+1/),(/ym,ym/),res_line)
   dum4 = gsn_add_text(wks,plot,tstring,xm+2,ym,res_text) ;add text
-  res_text@txBackgroundFillColor = "Transparent"
+; res_text@txBackgroundFillColor = "Transparent"
+  res_text@txFont = "21"
 
   if ( pv_rnd(2) .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "seagreen3"
+    res_text@txFont = "22"
+;   res_text@txBackgroundFillColor = "seagreen3"
   else
-    res_text@txBackgroundFillColor = "Transparent"
+    res_text@txFont = "21"
+;   res_text@txBackgroundFillColor = "Transparent"
   end if
   ym = ym-.08
   res_line@gsLineColor     = "forestgreen" 
@@ -247,13 +256,16 @@ begin
   tstring := gcm1+" ("+mv_t(2)+", "+pv_txt(2)+")"
   dum5 = gsn_add_polyline(wks,plot,(/xm-3,xm+1/),(/ym,ym/),res_line)
   dum6 = gsn_add_text(wks,plot,tstring,xm+2,ym,res_text) ;add text
-  res_text@txBackgroundFillColor = "Transparent"
+  res_text@txFont = "21"
+; res_text@txBackgroundFillColor = "Transparent"
 
   if ( nmod .eq. 4 ) then
     if ( pv_rnd(3) .le. 0.05 ) then
-      res_text@txBackgroundFillColor = "darkgoldenrod2"
+      res_text@txFont = "22"
+;     res_text@txBackgroundFillColor = "darkgoldenrod2"
     else
-      res_text@txBackgroundFillColor = "Transparent"
+      res_text@txFont = "21"
+;     res_text@txBackgroundFillColor = "Transparent"
     end if
     ym = ym-.08
     res_line@gsLineColor     = "darkorange1"
@@ -262,7 +274,8 @@ begin
     tstring := gcm2+"("+mv_t(3)+", "+pv_txt(3)+")"
     dum7 = gsn_add_polyline(wks,plot,(/xm-3,xm+1/),(/ym,ym/),res_line)
     dum8 = gsn_add_text(wks,plot,tstring,xm+2,ym,res_text)
-    res_text@txBackgroundFillColor = "Transparent"
+    res_text@txFont = "21"
+;   res_text@txBackgroundFillColor = "Transparent"
   end if
 
 ; ym = ym-.08

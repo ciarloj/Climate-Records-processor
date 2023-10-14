@@ -2,7 +2,7 @@
 {
 set -eo pipefail
 
-dom=NAM
+dom=EUR
 ndir=mynamelists
 if [ $dom = CAS ]; then
   echo "Script does not cater for CAS!"
@@ -10,7 +10,7 @@ if [ $dom = CAS ]; then
 fi
 
 tslice=Y #Y or N
-[[ $tslice = Y ]] && tper=1980-2020
+[[ $tslice = Y ]] && tper=1980-2020 #(fare dal 1970 al 2020 per era5 e jra-55
 st="runmax"
 nd="30"
 rel="false"

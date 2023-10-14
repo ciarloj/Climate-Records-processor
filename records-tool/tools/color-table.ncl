@@ -24,7 +24,7 @@ begin
     yr2 = "2098"
   end if
   if ( subj.eq."reanalysis-3" ) then
-    yr1 = "1980"
+    yr1 = "1950"
     yr2 = "2020"
   end if
   if ( subj.eq."reanalysis-2" ) then
@@ -168,7 +168,7 @@ begin
 
         mv_mul = mval*1000000
         mv_rnd = round(mv_mul,1)
-        mval = mv_rnd/1000 ; value is at x10^-3
+        mval = mv_rnd/100000 ; value is at x10^-3
 
         vals_flt(i,mi) = mval
         vals_txt(i,mi) = ""+mval ;decimalPlaces(v,3,True)
@@ -231,7 +231,7 @@ begin
   if ( subj.eq."models" ) then
     crange = (/0.,1,2,3,4,5,6,7,8,9,10,11,12/)
   else
-    crange = (/-2,-1,0.,1,2,3,4,5,6,7,8,9,10/)
+    crange = (/-0.02,-0.01,0.00,0.01,0.02,0.03,0.04,0.05,0.06,0.07,0.08,0.09,0.10/)
   end if
   labels = new(dimsizes(colors)-1,"string")    ; for labelbar
 

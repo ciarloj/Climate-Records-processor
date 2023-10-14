@@ -108,9 +108,21 @@ begin
     ratv := (ratv*mval(nm))+cval
     ratv := where(run.eq.run@_FillValue,ratv@_FillValue,ratv)
     recs(2,:) = (/ratv(:)/)
+  
+;    printvarsummary("recs")
+
+
+  delete(ratv)
+
+
 
     allrats(nm,:) = (/recs(1,:)/)
     allrats(nm+nmod,:) = (/recs(2,:)/)
+
+
+;    printvarsummary("allrats")
+;    print("nm")
+
     delete(rcl)
 ;   delete(df)
 
@@ -119,6 +131,9 @@ begin
     delete(rat)
     delete(run)
     delete(v)
+
+
+
 
   end do
 
@@ -162,18 +177,18 @@ begin
   res_line@gsLineColor       = "Blue"
   res_line@gsLineThicknessF  = 3
 
-  mv_rnd = decimalPlaces(mval,5,True)
-  mval = mv_rnd*1000
+  mv_rnd = decimalPlaces(mval,4,True)
+  mval = mv_rnd*10
   mv_t = flt2string(mval)
 
   pv_rnd = decimalPlaces(pval,2,True)
   pv_txt = where(pv_rnd.lt.0.01,"0.00",""+pv_rnd)
   
-  if ( pv_rnd(0) .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "deepskyblue1"
-  else
+  ;if ( pv_rnd(0) .le. 0.05 ) then
+  ;  res_text@txBackgroundFillColor = "deepskyblue1"
+  ;else
     res_text@txBackgroundFillColor = "Transparent"
-  end if
+  ;end if
   dy = (y2-y1)*0.5/7
   xm = y1+dy
   ym = 1.93
@@ -183,11 +198,11 @@ begin
   dum2 = gsn_add_text(wks,plot,tstring,xm+2,ym,res_text) ;add text
   res_text@txBackgroundFillColor = "Transparent"
 
-  if ( pv_rnd(1) .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "indianred"
-  else
+ ; if ( pv_rnd(1) .le. 0.05 ) then
+ ;   res_text@txBackgroundFillColor = "indianred"
+ ; else
     res_text@txBackgroundFillColor = "Transparent"
-  end if
+ ; end if
   ym = ym-.08
   res_line@gsLineColor       = "Red"
   tstring := "MERRA ("+mv_t(1)+", "+pv_txt(1)+")"
@@ -195,11 +210,11 @@ begin
   dum4 = gsn_add_text(wks,plot,tstring,xm+2,ym,res_text) ;add text
   res_text@txBackgroundFillColor = "Transparent"
 
-  if ( pv_rnd(2) .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "seagreen3"
-  else
+ ; if ( pv_rnd(2) .le. 0.05 ) then
+ ;   res_text@txBackgroundFillColor = "seagreen3"
+ ; else
     res_text@txBackgroundFillColor = "Transparent"
-  end if
+;  end if
   ym = ym-.08
   res_line@gsLineColor     = "forestgreen" 
   tstring := "JRA55 ("+mv_t(2)+", "+pv_txt(2)+")"

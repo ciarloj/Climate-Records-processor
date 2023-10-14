@@ -77,9 +77,9 @@ begin
   res@gsnDraw                = False
   res@xyMarkLineModes        = (/"Lines","Markers"/)
   res@xyMarkers              = (/16,16/)
-  res@xyMarkerColors         = (/"Black","Blue"/)
+  res@xyMarkerColors         = (/"dark green","dark green"/)
   res@xyMarkerSizeF          = 0.005
-  res@xyLineColors           = (/"Black", "Blue"/)
+  res@xyLineColors           = (/"dark green", "dark green"/)
   res@xyLineThicknesses      = (/3,3/)
   res@xyDashPatterns         = (/0,0/)
 
@@ -120,10 +120,10 @@ begin
   xm = y1+dy
   ym = 0.8
   dum1 = gsn_add_polyline(wks,plot,(/xm-1,xm+1/),(/ym,ym/),res_line)
-  dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
+  dum2 = gsn_add_text(wks,plot,"Reference",xm+2,ym,res_text)  ; add text
 
   ym = 0.65
-  res_mark@gsMarkerColor     = "blue"      
+  res_mark@gsMarkerColor     = "black"     
   dum3 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
   dum4 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text
 

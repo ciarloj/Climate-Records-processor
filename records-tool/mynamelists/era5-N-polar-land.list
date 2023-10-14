@@ -1,0 +1,30 @@
+# input paths and choices
+# main job control
+wrk_dir = '/home/netapp-clima-scratch/jciarlo'
+job_mst = 'records'
+# data input  
+d_nam = 'ERA5-N-polar-land'
+d_dir = '/home/esp-shared-a/Observations/E_OBS/v20e/025'
+d_fnm = 'rr_ens_mean_0.25deg_reg_v20.0e.nc'
+# analysis details
+var = 'pr'
+fyr = '1980'
+lyr = '2020'
+stat = 'runmax'
+s_nd = '30'
+# running switches
+yr_split = 'false'
+yr_trimm = 'true' # always false with monmax/sum
+yr_stats = 'true' # always false with day
+yr_recor = 'true'
+yr_tmsum = 'true'
+yr_merge = 'true'
+yr_norma = 'true'
+# grid information
+remaplog = 'false'         # true = final plot requires remap
+remaptyp = 'dis'           # cdo remap options: dis, bil, bic, nn (only)
+gridfile = '/home/netapp-clima-scratch/jciarlo/records/E_OBS/1980.nc'
+# # mask information
+masklog = 'false'          # true = final plot requires masking (after remap)
+maskfil = '/home/netapp-clima-scratch/jciarlo/temp/sftlf_EUR-11_ECMWF-ERAINT_evaluation_r1i1p1_ICTP-RegCM4-6_v1_fx.nc'
+ 

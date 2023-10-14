@@ -1,0 +1,22 @@
+# input paths and choices
+# main job control
+wrk_dir = '/home/netapp-clima-scratch/jciarlo'
+job_mst = 'records'
+# data input  
+d_nam = 'CPC-N-polar-land'
+d_dir = '/home/netapp-clima-scratch/jciarlo/records/source'
+d_fnm = 'cpc_day_1979-2018.nc'
+# analysis details
+var = 'pr'
+fyr = '1980'
+lyr = '2020'
+stat = 'runmax'
+s_nd = '30'
+# running switches
+yr_split = 'false'
+yr_trimm = 'true' # always false with monmax/sum
+yr_stats = 'true' # always false with day
+yr_recor = 'true'
+yr_tmsum = 'true'
+yr_merge = 'true'
+yr_norma = 'true'

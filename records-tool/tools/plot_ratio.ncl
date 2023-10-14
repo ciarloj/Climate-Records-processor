@@ -123,13 +123,13 @@ begin
   end if
   res@gsnCenterString        = dnttl  ;dn+" "+snam
 
-  res@trYMaxF    = 2. 
+  res@trYMaxF    = 2.6 
   res@trYMinF    = 0.6 
   res@trXMinF    = y1f
   res@trXMaxF    = y2c
   res@tmYLMode = "Manual"
   res@tmYLTickStartF = 0.
-  res@tmYLTickEndF = 2.
+  res@tmYLTickEndF = 2.6
   res@tmYLTickSpacingF = 0.2
   plot = gsn_csm_xy (wks, bins, recs, res)        ; create plot
 
@@ -163,18 +163,18 @@ begin
   if ( dn.eq."APHRO-ME" ) then
     pos = "topleft"
   end if
-  if ( dn.eq."IMD" .or. dn.eq."NAMEREXT" .or. dn.eq."GCOSGHCN" ) then
+  if ( dn.eq."IMD" .or. dn.eq."NAMEREXT" .or. dn.eq."E-OBS" .or. dn.eq."SEA" ) then
     pos = "topleft"
   end if
   if ( pos.eq."topleft" ) then
     dy = (y2-y1)*0.5/7
-    ym = 1.93
+    ym = 2.5
   else if ( pos.eq."bottomleft" ) then
     dy = (y2-y1)*0.5/7
-    ym = 0.86
+    ym = 2.5
   else
-    dy = (y2-y1)*2.5/7
-    ym = 0.95
+    dy = (y2-y1)*0.5/7
+    ym = 2.5
   end if
   end if
   xm = y1+dy
@@ -182,13 +182,13 @@ begin
   dum1 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum2 = gsn_add_text(wks,plot,"Expected",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.07
+  ym = ym-.09
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 1
   dum3 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
 
-  mv_rnd = decimalPlaces(mval,5,True)
-  mval = mv_rnd*1000
+  mv_rnd = decimalPlaces(mval,4,True)
+  mval = mv_rnd*10
   mv_t = flt2string(mval)
 
   pv_rnd = decimalPlaces(pval,2,True)
@@ -198,7 +198,7 @@ begin
     pv_txt = ""+pv_rnd
   end if
   if ( pv_rnd .le. 0.05 ) then
-    res_text@txBackgroundFillColor = "Gray"
+    res_text@txBackgroundFillColor = "Transparent"
   else
     res_text@txBackgroundFillColor = "Transparent"
   end if
@@ -206,13 +206,13 @@ begin
   dum4 = gsn_add_text(wks,plot,"Linear Trend"+ststr,xm+2,ym,res_text)
 
   res_text@txBackgroundFillColor = "Transparent"
-  ym = ym-.07
+  ym = ym-.09
   res_line@gsLineColor       = "black"
   res_line@gsLineDashPattern = 0
   dum7 = gsn_add_polyline(wks,plot,(/xm-2,xm+1/),(/ym,ym/),res_line)
   dum8 = gsn_add_text(wks,plot,nry+"y Run. Avg.",xm+2,ym,res_text)  ; add text
 
-  ym = ym-.07
+  ym = ym-.09
   res_mark@gsMarkerColor     = "blue"      
   dum9 = gsn_add_polymarker(wks,plot,xm,ym,res_mark)        ; add polyline
   dum10 = gsn_add_text(wks,plot,"Actual",xm+2,ym,res_text)  ; add text

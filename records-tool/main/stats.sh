@@ -15,7 +15,7 @@ y_sp=$( cat $nlist | grep 'yr_split =' | cut -d"'" -f2 )
 y_tr=$( cat $nlist | grep 'yr_trimm =' | cut -d"'" -f2 )
 y_st=$( cat $nlist | grep 'yr_stats =' | cut -d"'" -f2 )
 [[ $st = day ]] && y_st='false'
-[[ $st = monmax ]] && y_tr='false'
+#[[ $st = monmax ]] && y_tr='false'
 [[ $st = monsum ]] && y_tr='false'
 
 hdir=$wkd/$jm/$dn

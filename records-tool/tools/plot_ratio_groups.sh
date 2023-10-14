@@ -2,8 +2,8 @@
 {
 set -eo pipefail
 
-dom=NAM
-gcm=HADGEM
+dom=EUR
+gcm=MPI
 rcp=85
 ndir=mynamelists
 if [ $dom = CAS ]; then
@@ -12,7 +12,7 @@ if [ $dom = CAS ]; then
 fi
 
 tslice=Y #Y or N
-[[ $tslice = Y ]] && tper=2005-2099
+[[ $tslice = Y ]] && tper=1971-2020
 st="runmax"
 nd="30"
 rel="false"
