@@ -28,50 +28,34 @@ begin
   if ( stt.eq."Rtot" ) then
     unit = "rainfall (mm)"
     desc = "Total Annual Rainfall (>1mm/day)"
-    ymax = 1900.
-    ymin = 0.
   end if
   if ( stt.eq.("R"+pxx) ) then
     unit = "rainfall (mm)"
     desc = "Total Annual Rainfall (>1mm/day) above p"+pxx
-    ymax = 400.
-    ymin = 0.
   end if
   if ( stt.eq.("Rm"+pxx) ) then
     unit = "rainfall (mm)"
     desc = "Total Annual Rainfall (>1mm/day) below p"+pxx
-    ymax = 1800.
-    ymin = 0.
   end if
   if ( stt.eq.("Rf"+pxx) ) then
     unit = "rainfall fraction (#)"
     desc = "Total Rainfall fraction (>1mm/day) above p"+pxx
-    ymax = 0.3
-    ymin = 0.
   end if
   if ( stt.eq."ndaytot" ) then
     unit = "days (#)"
     desc = "Total number of wet days (>1mm/day)"
-    ymax = 300.
-    ymin = 0.
   end if
   if ( stt.eq.("ndayR"+pxx) ) then
     unit = "days (#)"
     desc = "Total number of wet days (>1mm/day) above p"+pxx
-    ymax = 4.
-    ymin = 0.
   end if
   if ( stt.eq.("ndayRm"+pxx) ) then
     unit = "days (#)"
     desc = "Total number of wet days (>1mm/day) below p"+pxx
-    ymax = 300.
-    ymin = 0.
   end if
   if ( stt.eq.("ndayfR"+pxx) ) then
     unit = "fraction of days (#)"
     desc = "Fraction of total wet days (>1mm/day) above p"+pxx
-    ymax = 0.04
-    ymin = 0.
   end if
   
 
@@ -81,7 +65,7 @@ begin
 
   domains = (/"land", "ocean"/)
   if ( dn.eq."CPC" ) then
-    domains = (/"land"/)
+    domains := (/"land"/)
   end if
   hemisph = (/"N", "S"/)
   latband = (/"tropics", "midlats", "polar"/)
@@ -137,6 +121,8 @@ begin
   dnttl = dn
   res@gsnCenterString        = dnttl+" global-land"
 
+  ymax = max(gpercs)+(max(gpercs)*0.08)
+  ymin = max((/min(gpercs)-(max(gpercs)*0.08),0.0/))
   res@trYMaxF    = ymax
   res@trYMinF    = ymin 
   res@trXMinF    = y1f
@@ -202,7 +188,7 @@ begin
   plots(3) = gsn_csm_xy (wks, bins, gpercsO, resO)        ; create plot
 
   resh = res
-  resh@xyLineColors      := (/"red","darkgreen","blue"/)
+  resh@xyLineColors      := (/"darkgreen","goldenrod3","purple2"/)
   resh@xyLineThicknesses := (/3,3,3/)
   resh@xyDashPatterns    := (/0,0,0/)
 
@@ -232,6 +218,10 @@ begin
       end do
 
       resh@gsnCenterString    := dnttl+" "+hh+"-hemisphere-"+dd
+      yhmax = max(hpercs)+(max(hpercs)*0.08)
+      yhmin = max((/min(hpercs)-(max(hpercs)*0.08),0.0/))
+      resh@trYMaxF    = yhmax
+      resh@trYMinF    = yhmin
       plots(nd+dh) = gsn_csm_xy (wks, bins, hpercs, resh)
 
       if ( dd.eq."land" .and. hh.eq."N" ) then
@@ -247,17 +237,17 @@ begin
         end if
         end if
         xm = y1+dy
-        res_lineB@gsLineColor       = "red"
+        res_lineB@gsLineColor       = "darkgreen"
         dum9 = gsn_add_polyline(wks,plots(nd+dh),(/xm-2,xm+1/),(/ym,ym/),res_lineB)
         dum10= gsn_add_text(wks,plots(nd+dh),"tropics",xm+2,ym,res_textB)  ; add text
 
         ym = ym-ddy
-        res_lineB@gsLineColor       = "darkgreen"
+        res_lineB@gsLineColor       = "goldenrod3"
         dum11= gsn_add_polyline(wks,plots(nd+dh),(/xm-2,xm+1/),(/ym,ym/),res_lineB)
         dum12= gsn_add_text(wks,plots(nd+dh),"midlats",xm+2,ym,res_textB)
 
         ym = ym-ddy
-        res_lineB@gsLineColor       = "blue"
+        res_lineB@gsLineColor       = "purple2"
         dum13= gsn_add_polyline(wks,plots(nd+dh),(/xm-2,xm+1/),(/ym,ym/),res_lineB)
         dum14= gsn_add_text(wks,plots(nd+dh),"polar",xm+2,ym,res_textB)  ; add text
       end if
@@ -278,7 +268,11 @@ begin
 ; resP@gsnPanelBottom      = 0.08
 ; resP@gsnPanelDebug  = True
 
-  gsn_panel(wks,plots,(/2,3/),resP)
+  if ( dn.eq."CPC" ) then
+    gsn_panel(wks,plots(0:2),(/1,3/),resP)
+  else
+    gsn_panel(wks,plots,(/2,3/),resP)
+  end if
 
 ;*****************************************************
 ; save output image

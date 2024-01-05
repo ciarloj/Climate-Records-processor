@@ -14,7 +14,7 @@ export y1=$( cat $nlist | grep 'fyr =' | cut -d"'" -f2 )
 export y2=$( cat $nlist | grep 'lyr =' | cut -d"'" -f2 )
 v=$( cat $nlist | grep 'var =' | cut -d"'" -f2 )
 
-export pp=99
+export pp=95
 export var=$v
 export hdir=$wkd/$jm/$dn
 #export ddir=rainy/p$pp/$stat
@@ -47,7 +47,6 @@ for st in $stats ; do
   export stat=$st
   echo "## Plotting for $stat"
 
-  merge "global" $st
   for d in $domains; do
     merge "-$d" $st
     for h in $hemispheres; do
@@ -56,6 +55,7 @@ for st in $stats ; do
       done #bands
     done #hemispheres
   done #domains
+  merge "global" $st
   ncl -Q tools/plot_rainy.ncl  
 done #stats
 
