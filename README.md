@@ -1,6 +1,6 @@
 # Climate-Records-processor
 
-A tool used to quantify the number of new records associated with a climate parameter year-after-year. This has been tested on daily precipitation records (Giorgi & Ciarlo`, submitted), and is based on the works of Elguindi et al. (2003), who focused on daily temperature records.
+A tool used to quantify the number of new records associated with a climate parameter year-after-year. This has been tested on daily precipitation records (Giorgi & Ciarlo`, 2022), and is based on the works of Elguindi et al. (2003), who focused on daily temperature records. 
 
 
 ## Requirements
@@ -26,6 +26,8 @@ Elguindi, N., Rauscher, S.A. & Giorgi, F. Historical and future changes in maxim
 Giorgi, F., & Ciarlò, J. M. (2022). Use of daily precipitation records to assess the response of extreme events to global warming: Methodology and illustrative application to the European region. International Journal of Climatology, 42(14), 7061–7070. https://doi.org/10.1002/joc.7629
 
 Belleri, L., Ciarlo, J. M., Maugeri, M., Ranzi, R., & Giorgi, F. (2023). Continental-scale trends of daily precipitation records in late 20th century decades and 21st century projections: An analysis of observations, reanalyses and CORDEX-CORE projections. International Journal of Climatology, 1–15. https://doi.org/10.1002/joc.8248
+
+Ciarlo, J. M., & Giorgi, F. (submitted). An increase in global daily precipitation records in response to global warming based on reanalysis and observations. Open Research Europe.
 
 ## Contact 
 
