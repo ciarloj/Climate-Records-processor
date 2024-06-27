@@ -15,7 +15,7 @@ Set up a namelist (basic namelist: INPUT.list) in the mynamelists directory (mos
 
 sub.sh is the main tool needed to run the entire sequence, and multuple statistics (but this can be personalized)
 
-Additional tools are available in the tools directory. The NCL scripts that plot spatial maps are configured to recognise RegCM and REMO model data, as well as any data used in the analysis of Giorgi & Ciarlo` (2022), Belleri et al. (2023), and Ciarlo` & Giorgi (2024).
+Additional tools are available in the tools directory. The NCL scripts that plot spatial maps are configured to recognise RegCM and REMO model data, as well as any data used in the analysis of Giorgi & Ciarlo' (2022), Belleri et al. (2023), and Ciarlo' & Giorgi (2024).
 
 Usage of these scripts and method should cite the studies below. 
 
@@ -27,7 +27,7 @@ Giorgi, F., & Ciarlò, J. M. (2022). Use of daily precipitation records to assess
 
 Belleri, L., Ciarlo, J. M., Maugeri, M., Ranzi, R., & Giorgi, F. (2023). Continental-scale trends of daily precipitation records in late 20th century decades and 21st century projections: An analysis of observations, reanalyses and CORDEX-CORE projections. International Journal of Climatology, 1–15. https://doi.org/10.1002/joc.8248
 
-Ciarlo, J. M., & Giorgi, F. (2024; undergoing open peer review). An increase in global daily precipitation records in response to global warming based on reanalysis and observations. Open Research Europe. https://doi.org/10.12688/openreseurope.17674.1
+Ciarlo', J. M., & Giorgi, F. (2024; undergoing open peer review). An increase in global daily precipitation records in response to global warming based on reanalysis and observations. Open Research Europe. https://doi.org/10.12688/openreseurope.17674.1
 
 ## Contact 
 
