@@ -27,7 +27,7 @@ Giorgi, F., & Ciarlò, J. M. (2022). Use of daily precipitation records to assess
 
 Belleri, L., Ciarlo, J. M., Maugeri, M., Ranzi, R., & Giorgi, F. (2023). Continental-scale trends of daily precipitation records in late 20th century decades and 21st century projections: An analysis of observations, reanalyses and CORDEX-CORE projections. International Journal of Climatology, 1–15. https://doi.org/10.1002/joc.8248
 
-Ciarlo', J. M., & Giorgi, F. (2024; undergoing open peer review). An increase in global daily precipitation records in response to global warming based on reanalysis and observations. Open Research Europe. https://doi.org/10.12688/openreseurope.17674.1
+Ciarlo', J. M., & Giorgi, F. (2024). An increase in global daily precipitation records in response to global warming based on reanalysis and observations [version 2; peer review: 2 approved]. Open Research Europe. https://doi.org/10.12688/openreseurope.17674.1
 
 ## Contact 
 
